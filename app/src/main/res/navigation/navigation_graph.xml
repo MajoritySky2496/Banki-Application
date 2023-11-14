@@ -1,13 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/navigation_graph"
-    app:startDestination="@id/rootActivity">
-
-    <activity
-        android:id="@+id/rootActivity"
-        android:name="com.example.bankiapplication.RootActivity"
-        android:label="fragment_webview"
-        tools:layout="@layout/fragment_webview" />
+    app:startDestination="@id/webViewFragment">
+    <fragment
+        android:id="@+id/webViewFragment"
+        android:name="com.example.bankiapplication.ui.WebViewFragment"
+        android:label="WebViewFragment" />
 </navigation>

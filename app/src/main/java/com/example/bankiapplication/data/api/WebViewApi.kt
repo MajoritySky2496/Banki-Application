@@ -1,7 +1,7 @@
-package com.example.bankiapplication.domain
+package com.example.bankiapplication.data.api
 
 import android.webkit.WebView
 
-interface Interactor {
+interface WebViewApi {
     fun startWebView(webView: WebView)
 }
