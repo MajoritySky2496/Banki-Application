@@ -31,7 +31,6 @@ class WebViewFragment:BindingFragment<FragmentWebviewBinding>() {
         viewModel.viewStateLiveData.observe(requireActivity()) { render(it) }
         webView = binding.webView
         showWebView(webView)
-
     }
 
     override fun onAttach(context: Context) {
