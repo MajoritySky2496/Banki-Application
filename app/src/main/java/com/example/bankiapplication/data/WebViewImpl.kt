@@ -3,6 +3,7 @@ package com.example.bankiapplication.data
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.os.Build
+import android.view.View
 import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
@@ -20,14 +21,14 @@ class WebViewImpl:WebViewApi {
         webView.settings.setGeolocationEnabled(true)
         webView.settings.allowFileAccess =true
         webView.settings.mixedContentMode = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
+        webView.getSettings().setMediaPlaybackRequiresUserGesture(false);
+        webView.setLayerType(View.LAYER_TYPE_NONE, null);
         webView.webViewClient = WebViewClient()
-        webView.webChromeClient = MyWebChromeClient(webView.context as Activity)
-
-
+        webView.webChromeClient = MyWebChromeClient(webView.context as Activity, webView)
         webView.settings.userAgentString = "Mozilla/5.0 (Linux; Android 13; SAMSUNG SM-S911B) AppleWebKit/537.36 (KHTML, like Gecko) SamsungBrowser/23.0 Chrome/115.0.0.0 Mobile Safari/537.36"
         webView.loadUrl(START_URL)
     }
     companion object{
-        const val START_URL = "https://crapinka.ru/BtGLZhVK?aff_sub4=test"
+        const val START_URL = "http://crapinka.ru/BtGLZhVK?aff_sub4=test"
     }
 }

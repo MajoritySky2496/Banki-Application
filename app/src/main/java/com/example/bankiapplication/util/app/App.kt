@@ -16,5 +16,6 @@ class App:Application() {
             androidContext(this@App)
             modules(dataModule, interactorModule, repositoryModule, viewModelModule, permissionModule)
         }
+
     }
 }

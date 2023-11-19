@@ -64,4 +64,10 @@ dependencies {
     implementation(platform("com.google.firebase:firebase-bom:32.5.0"))
     implementation("com.google.firebase:firebase-analytics")
     implementation("com.google.firebase:firebase-messaging-ktx:23.3.1")
+
+    //RxPermission
+    implementation ("com.github.tbruyelle:rxpermissions:0.12")
+    implementation ("io.reactivex.rxjava3:rxjava:3.0.4")
+
+
 }
