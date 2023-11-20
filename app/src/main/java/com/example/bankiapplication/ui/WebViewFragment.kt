@@ -15,8 +15,9 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.core.parameter.parametersOf
 
 class WebViewFragment:BindingFragment<FragmentWebviewBinding>() {
-    private val viewModel: WebViewViewModel by viewModel{ parametersOf() }
-    lateinit var webView:WebView
+    private val viewModel: WebViewViewModel by viewModel { parametersOf() }
+    lateinit var webView: WebView
+
     override fun createBinding(
         inflater: LayoutInflater,
         container: ViewGroup?
@@ -26,10 +27,12 @@ class WebViewFragment:BindingFragment<FragmentWebviewBinding>() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        viewModel.viewStateLiveData.observe(requireActivity()){render(it)}
+        viewModel.checkPermission(requireActivity())
+        viewModel.viewStateLiveData.observe(requireActivity()) { render(it) }
         webView = binding.webView
         showWebView(webView)
     }
+
     override fun onAttach(context: Context) {
         super.onAttach(context)
         val callback = object : OnBackPressedCallback(
@@ -44,18 +47,22 @@ class WebViewFragment:BindingFragment<FragmentWebviewBinding>() {
             callback
         )
     }
-    private fun render(state:WebViewFragmentState){
-        when(state){
+
+    private fun render(state: WebViewFragmentState) {
+        when (state) {
             is WebViewFragmentState.Finish -> finish()
         }
     }
-    private fun showWebView(webView: WebView){
+
+    private fun showWebView(webView: WebView) {
         viewModel.showWebView(webView)
     }
-    private fun webViewGoBack(webView: WebView){
+
+    private fun webViewGoBack(webView: WebView) {
         viewModel.webViewGoBack(webView)
     }
-    private fun finish(){
+
+    private fun finish() {
         requireActivity().finish()
     }
 }
