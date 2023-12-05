@@ -70,6 +70,8 @@ class WebViewFragment:BindingFragment<FragmentWebviewBinding>() {
             is WebViewFragmentState.Finish -> finish()
             is WebViewFragmentState.ShowToolbar -> showToolbar()
             is WebViewFragmentState.HideToolbar -> hideToolbar()
+            is WebViewFragmentState.Loading -> showLoading()
+            is WebViewFragmentState.ShowView -> showView(state.url)
         }
     }
 
@@ -97,6 +99,24 @@ class WebViewFragment:BindingFragment<FragmentWebviewBinding>() {
     }
     private fun hideToolbar(){
         binding.toolbar.visibility = View.GONE
+    }
+    private fun showLoading(){
+        binding.webView.visibility = View.GONE
+        binding.progressBar.visibility = View.VISIBLE
+        binding.toolbar.visibility = View.GONE
+
+    }
+    private fun showView(url:String){
+        if(url!="https://credp.site/auto-matic-zaem"){
+            binding.webView.visibility = View.VISIBLE
+            binding.progressBar.visibility = View.INVISIBLE
+            binding.toolbar.visibility = View.VISIBLE
+        }else{
+            binding.webView.visibility = View.VISIBLE
+            binding.progressBar.visibility = View.INVISIBLE
+            binding.toolbar.visibility = View.GONE
+        }
+
     }
 
 }

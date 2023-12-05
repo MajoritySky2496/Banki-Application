@@ -24,12 +24,15 @@ class WebViewViewModel(
     private val webViewClient = object :WebViewClient(){
         override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
             super.onPageStarted(view, url, favicon)
+            showLoading()
             url?.let { urlHashSetList.add(it) }
-            showVisibilityOfToolbar(urlHashSetList, url!!)
+//            showVisibilityOfToolbar(urlHashSetList, url!!)
         }
 
         override fun onPageFinished(view: WebView?, url: String?) {
             super.onPageFinished(view, url)
+            showView(url!!)
+
         }
     }
 
@@ -86,5 +89,11 @@ class WebViewViewModel(
         }else{
             _viewStateLiveData.postValue(WebViewFragmentState.HideToolbar)
         }
+    }
+    private fun showLoading(){
+        _viewStateLiveData.postValue(WebViewFragmentState.Loading)
+    }
+    private fun showView(url: String){
+        _viewStateLiveData.postValue(WebViewFragmentState.ShowView(url))
     }
 }
