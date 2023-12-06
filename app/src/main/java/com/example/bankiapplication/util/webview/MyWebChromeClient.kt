@@ -1,4 +1,4 @@
-package com.example.bankiapplication.util
+package com.example.bankiapplication.util.webview
 
 import android.Manifest
 import android.annotation.SuppressLint
@@ -13,6 +13,7 @@ import android.webkit.WebChromeClient
 import android.webkit.WebView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.FragmentActivity
+import com.example.bankiapplication.util.Convector
 import com.tbruyelle.rxpermissions3.RxPermissions
 import java.util.*
 
@@ -99,7 +100,6 @@ class MyWebChromeClient(private val activity: Activity, private val webView: Web
                 }
             }
     }
-
 }
 
 
