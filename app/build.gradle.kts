@@ -20,7 +20,6 @@ android {
         targetSdk = 33
         versionCode = 1
         versionName = "1.0"
-
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -69,5 +68,7 @@ dependencies {
     implementation ("com.github.tbruyelle:rxpermissions:0.12")
     implementation ("io.reactivex.rxjava3:rxjava:3.0.4")
 
+    //Gif
+    implementation ("pl.droidsonroids.gif:android-gif-drawable:1.2.22")
 
 }
