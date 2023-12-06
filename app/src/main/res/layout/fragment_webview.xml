@@ -23,7 +23,8 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        android:visibility="gone">
+        android:visibility="visible"
+        >
 
         <ImageView
             android:id="@+id/cross"
@@ -33,7 +34,8 @@
             app:layout_constraintBottom_toBottomOf="@+id/toolbar"
             app:layout_constraintStart_toStartOf="@id/toolbar"
             app:layout_constraintTop_toTopOf="@id/toolbar"
-            android:layout_marginStart="10dp"/>
+            android:layout_marginStart="10dp"
+            />
 
         <ImageView
             android:id="@+id/reload"
@@ -62,6 +64,17 @@
             app:layout_constraintEnd_toStartOf="@+id/arrow_forward"
             app:layout_constraintBottom_toBottomOf="@+id/arrow_forward"
             android:layout_marginEnd="10dp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="25sp"
+            android:text="Займы онлайн"
+            android:textColor="@color/black"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/arrow_back"
+            app:layout_constraintStart_toEndOf="@+id/cross"
+            app:layout_constraintTop_toTopOf="parent" />
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>

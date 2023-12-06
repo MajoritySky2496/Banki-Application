@@ -3,6 +3,7 @@ package com.example.bankiapplication.presentation
 import android.app.Activity
 import android.graphics.Bitmap
 import android.util.Log
+import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.lifecycle.LiveData
@@ -20,19 +21,29 @@ class WebViewViewModel(
 ) : ViewModel() {
 
     private var urlHashSetList = HashSet<String>()
-
     private val webViewClient = object :WebViewClient(){
         override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
             super.onPageStarted(view, url, favicon)
             showLoading()
             url?.let { urlHashSetList.add(it) }
-//            showVisibilityOfToolbar(urlHashSetList, url!!)
         }
 
         override fun onPageFinished(view: WebView?, url: String?) {
             super.onPageFinished(view, url)
             showView(url!!)
 
+        }
+
+        override fun shouldOverrideUrlLoading(
+            view: WebView?,
+            request: WebResourceRequest?
+        ): Boolean {
+            return super.shouldOverrideUrlLoading(view, request)
+
+        }
+
+        override fun shouldOverrideUrlLoading(view: WebView?, url: String?): Boolean {
+            return super.shouldOverrideUrlLoading(view, url)
         }
     }
 
@@ -81,14 +92,6 @@ class WebViewViewModel(
             val token = task.result
             Log.d("MyLog", token)
         })
-    }
-    private fun showVisibilityOfToolbar(urlHashSetList:HashSet<String>, url:String){
-        Log.d("MyLog", urlHashSetList.toString())
-        if(url!="https://credp.site/auto-matic-zaem"){
-            _viewStateLiveData.postValue(WebViewFragmentState.ShowToolbar)
-        }else{
-            _viewStateLiveData.postValue(WebViewFragmentState.HideToolbar)
-        }
     }
     private fun showLoading(){
         _viewStateLiveData.postValue(WebViewFragmentState.Loading)
