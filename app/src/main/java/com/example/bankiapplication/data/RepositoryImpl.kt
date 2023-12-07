@@ -13,4 +13,8 @@ class RepositoryImpl(private val webViewApi: WebViewApi):Repository {
     override fun getStartUrl(): String {
         return webViewApi.getStartUrl()
     }
+
+    override fun checkConnection(): Boolean {
+        return webViewApi.isConnected()
+    }
 }

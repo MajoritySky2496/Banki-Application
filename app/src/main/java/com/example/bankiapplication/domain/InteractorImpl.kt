@@ -11,4 +11,13 @@ class InteractorImpl(private val repository: Repository):Interactor {
     override fun getStartUrl(): String {
        return repository.getStartUrl()
     }
+
+    override fun checkConnected(): Int {
+        val internetSatus = repository.checkConnection()
+        if(internetSatus!=true){
+            return 500
+        }else{
+            return 200
+        }
+    }
 }

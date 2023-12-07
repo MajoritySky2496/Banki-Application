@@ -43,8 +43,7 @@ class WebViewFragment:BindingFragment<FragmentWebviewBinding>() {
             webViewReload(webView)
         }
         binding.cross.setOnClickListener {
-            webView.loadUrl(startUrl!!)
-            webView.clearCache(true)
+            goToHomePage()
         }
 
     }
@@ -67,10 +66,9 @@ class WebViewFragment:BindingFragment<FragmentWebviewBinding>() {
     private fun render(state: WebViewFragmentState) {
         when (state) {
             is WebViewFragmentState.Finish -> finish()
-            is WebViewFragmentState.ShowToolbar -> showToolbar()
-            is WebViewFragmentState.HideToolbar -> hideToolbar()
             is WebViewFragmentState.Loading -> showLoading()
             is WebViewFragmentState.ShowView -> showView(state.url, state.urlList, state.startUrl)
+            is WebViewFragmentState.NoConnection -> showNoConnection()
         }
     }
 
@@ -93,12 +91,7 @@ class WebViewFragment:BindingFragment<FragmentWebviewBinding>() {
     private fun finish() {
         requireActivity().finish()
     }
-    private fun showToolbar(){
-        binding.toolbar.visibility = View.VISIBLE
-    }
-    private fun hideToolbar(){
-        binding.toolbar.visibility = View.GONE
-    }
+
     private fun showLoading(){
         binding.webView.visibility = View.GONE
         binding.progressBar.visibility = View.VISIBLE
@@ -119,5 +112,14 @@ class WebViewFragment:BindingFragment<FragmentWebviewBinding>() {
         }
 
     }
-
+    private fun showNoConnection(){
+        binding.webView.visibility = View.INVISIBLE
+        binding.progressBar.visibility = View.INVISIBLE
+        binding.toolbar.visibility = View.INVISIBLE
+        binding.startAnimation.visibility = View.GONE
+        binding.errorInternet.visibility = View.VISIBLE
+    }
+    private fun goToHomePage(){
+        viewModel.goToHomePage(webView)
+    }
 }
