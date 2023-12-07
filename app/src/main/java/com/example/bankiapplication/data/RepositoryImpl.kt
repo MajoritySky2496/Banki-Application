@@ -9,4 +9,8 @@ class RepositoryImpl(private val webViewApi: WebViewApi):Repository {
     override fun startWebView(webView: WebView, webViewClient: WebViewClient) {
        webViewApi.startWebView(webView, webViewClient)
     }
+
+    override fun getStartUrl(): String {
+        return webViewApi.getStartUrl()
+    }
 }

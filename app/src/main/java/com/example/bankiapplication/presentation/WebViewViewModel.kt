@@ -18,14 +18,15 @@ import com.google.firebase.messaging.FirebaseMessaging
 class WebViewViewModel(
     private val interactor: Interactor,
     private val checkPermissions: CheckPermissions
+
 ) : ViewModel() {
 
-    private var urlHashSetList = HashSet<String>()
+    private var urlList = mutableListOf<String>()
     private val webViewClient = object :WebViewClient(){
         override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
             super.onPageStarted(view, url, favicon)
             showLoading()
-            url?.let { urlHashSetList.add(it) }
+            url?.let { urlList.add(it) }
         }
 
         override fun onPageFinished(view: WebView?, url: String?) {
@@ -97,6 +98,9 @@ class WebViewViewModel(
         _viewStateLiveData.postValue(WebViewFragmentState.Loading)
     }
     private fun showView(url: String){
-        _viewStateLiveData.postValue(WebViewFragmentState.ShowView(url))
+        _viewStateLiveData.postValue(WebViewFragmentState.ShowView(url, urlList, getStartUrl()))
+    }
+    private fun getStartUrl():String{
+        return interactor.getStartUrl()
     }
 }

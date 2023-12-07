@@ -5,5 +5,5 @@ sealed interface WebViewFragmentState{
     object ShowToolbar:WebViewFragmentState
     object HideToolbar:WebViewFragmentState
     object Loading:WebViewFragmentState
-    data class ShowView( val url:String):WebViewFragmentState
+    data class ShowView( val url:String, val urlList:MutableList<String>, val startUrl:String):WebViewFragmentState
 }

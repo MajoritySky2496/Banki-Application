@@ -5,4 +5,5 @@ import android.webkit.WebViewClient
 
 interface WebViewApi {
     fun startWebView(webView: WebView, webViewClient: WebViewClient)
+    fun getStartUrl():String
 }

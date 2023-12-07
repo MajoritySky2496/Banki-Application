@@ -71,7 +71,6 @@ dependencies {
     //Gif
     implementation ("pl.droidsonroids.gif:android-gif-drawable:1.2.22")
 
-    // AppMetrica SDK
+    //AppMetrica SDK
     implementation ("com.yandex.android:mobmetricalib:5.3.0")
-
 }
