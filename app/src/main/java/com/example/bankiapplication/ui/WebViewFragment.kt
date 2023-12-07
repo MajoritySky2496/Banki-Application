@@ -6,7 +6,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.webkit.WebView
 import androidx.activity.OnBackPressedCallback
-import com.example.bankiapplication.data.WebViewImpl
 import com.example.bankiapplication.databinding.FragmentWebviewBinding
 import com.example.bankiapplication.presentation.WebViewViewModel
 import com.example.bankiapplication.ui.model.WebViewFragmentState
@@ -17,6 +16,7 @@ import org.koin.core.parameter.parametersOf
 class WebViewFragment:BindingFragment<FragmentWebviewBinding>() {
     private val viewModel: WebViewViewModel by viewModel { parametersOf() }
     lateinit var webView: WebView
+    var startUrl:String? =null
 
 
     override fun createBinding(
@@ -43,7 +43,7 @@ class WebViewFragment:BindingFragment<FragmentWebviewBinding>() {
             webViewReload(webView)
         }
         binding.cross.setOnClickListener {
-            webView.loadUrl(WebViewImpl.START_URL)
+            webView.loadUrl(startUrl!!)
             webView.clearCache(true)
         }
 
@@ -70,7 +70,7 @@ class WebViewFragment:BindingFragment<FragmentWebviewBinding>() {
             is WebViewFragmentState.ShowToolbar -> showToolbar()
             is WebViewFragmentState.HideToolbar -> hideToolbar()
             is WebViewFragmentState.Loading -> showLoading()
-            is WebViewFragmentState.ShowView -> showView(state.url)
+            is WebViewFragmentState.ShowView -> showView(state.url, state.urlList, state.startUrl)
         }
     }
 
@@ -79,7 +79,7 @@ class WebViewFragment:BindingFragment<FragmentWebviewBinding>() {
     }
 
     private fun webViewGoBack(webView: WebView) {
-        if(webView.url!=WebViewImpl.START_URL) {
+        if(webView.url!=startUrl) {
             viewModel.webViewGoBack(webView)
         }
     }
@@ -105,8 +105,9 @@ class WebViewFragment:BindingFragment<FragmentWebviewBinding>() {
         binding.toolbar.visibility = View.GONE
 
     }
-    private fun showView(url:String){
-        if(url!="https://credp.site/auto-matic-zaem"){
+    private fun showView(currentUrl:String, urlList:MutableList<String>, startUrl:String){
+        this.startUrl = startUrl
+        if(currentUrl!=urlList.get(0)){
             binding.webView.visibility = View.VISIBLE
             binding.progressBar.visibility = View.INVISIBLE
             binding.toolbar.visibility = View.VISIBLE
