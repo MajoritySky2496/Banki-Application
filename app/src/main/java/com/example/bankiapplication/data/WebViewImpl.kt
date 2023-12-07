@@ -23,6 +23,7 @@ class WebViewImpl(private val context: Context) : WebViewApi {
         webView.settings.setGeolocationEnabled(true)
         webView.settings.allowFileAccess = true
         webView.settings.mixedContentMode = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
+        webView.getSettings().setCacheMode(WebSettings.LOAD_CACHE_ELSE_NETWORK)
         webView.getSettings().setMediaPlaybackRequiresUserGesture(false);
         webView.setLayerType(View.LAYER_TYPE_NONE, null);
         webView.webViewClient = webViewClient
@@ -45,15 +46,42 @@ class WebViewImpl(private val context: Context) : WebViewApi {
             return isVpnConnected!!
 
         } else {
-
             val networks = connectivityManager.allNetworks
-
             for (i in 0..networks.size - 1) {
-
                 val networkCapabilities = connectivityManager.getNetworkCapabilities(networks[i])
                 val isVpnConnected =
                     networkCapabilities?.hasTransport(NetworkCapabilities.TRANSPORT_VPN)
                 return isVpnConnected!!
+            }
+        }
+        return false
+    }
+
+     override fun isConnected(): Boolean {
+        val connectivityManager =
+            context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            val capabilities =
+                connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork)
+            if (capabilities != null) {
+                when {
+                    capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> return true
+                    capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> return true
+                    capabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET) -> return true
+                }
+            }
+        } else {
+            val networks = connectivityManager.allNetworks
+            for (i in 0..networks.size - 1) {
+                val capabilities = connectivityManager.getNetworkCapabilities(networks[i])
+                if(capabilities != null){
+                    when{
+                        capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> return true
+                        capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> return true
+                        capabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET) -> return true
+                    }
+                }
             }
 
         }
@@ -62,10 +90,10 @@ class WebViewImpl(private val context: Context) : WebViewApi {
 
 
     override fun getStartUrl(): String {
-       when(checkVpn()){
-           false -> return START_URL
-           true -> return START_URL_VPN
-       }
+        when (checkVpn()) {
+            false -> return START_URL
+            true -> return START_URL_VPN
+        }
 
     }
 

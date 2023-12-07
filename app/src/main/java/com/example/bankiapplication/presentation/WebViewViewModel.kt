@@ -1,5 +1,4 @@
 package com.example.bankiapplication.presentation
-
 import android.app.Activity
 import android.graphics.Bitmap
 import android.util.Log
@@ -27,11 +26,13 @@ class WebViewViewModel(
             super.onPageStarted(view, url, favicon)
             showLoading()
             url?.let { urlList.add(it) }
+            Log.d("myLog", "start")
         }
 
         override fun onPageFinished(view: WebView?, url: String?) {
             super.onPageFinished(view, url)
             showView(url!!)
+            Log.d("myLog", "finish")
 
         }
 
@@ -42,7 +43,6 @@ class WebViewViewModel(
             return super.shouldOverrideUrlLoading(view, request)
 
         }
-
         override fun shouldOverrideUrlLoading(view: WebView?, url: String?): Boolean {
             return super.shouldOverrideUrlLoading(view, url)
         }
@@ -55,8 +55,12 @@ class WebViewViewModel(
         getToken()
     }
 
-    fun showWebView(webView: WebView) {
-        interactor.startWebView(webView, webViewClient)
+     fun showWebView(webView: WebView) {
+         when(interactor.checkConnected()){
+             500 -> _viewStateLiveData.postValue(WebViewFragmentState.NoConnection)
+             200 -> interactor.startWebView(webView, webViewClient)
+         }
+
     }
 
     fun webViewGoBack(webView: WebView) {
@@ -102,5 +106,11 @@ class WebViewViewModel(
     }
     private fun getStartUrl():String{
         return interactor.getStartUrl()
+
+    }
+    fun goToHomePage(webView: WebView){
+        while (webView.canGoBack()){
+            webView.goBack()
+        }
     }
 }
