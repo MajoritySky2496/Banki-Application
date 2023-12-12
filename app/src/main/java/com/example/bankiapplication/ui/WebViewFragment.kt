@@ -117,12 +117,11 @@ class WebViewFragment : BindingFragment<FragmentWebviewBinding>() {
             binding.webView.visibility = View.VISIBLE
             binding.progressBar.visibility = View.INVISIBLE
             binding.toolbar.visibility = View.VISIBLE
-            binding.toolbarVpn.visibility = View.GONE
+
         } else {
             binding.webView.visibility = View.VISIBLE
             binding.progressBar.visibility = View.INVISIBLE
             binding.toolbar.visibility = View.GONE
-            binding.toolbarVpn.visibility = View.GONE
             binding.startAnimation.visibility = View.GONE
         }
     }

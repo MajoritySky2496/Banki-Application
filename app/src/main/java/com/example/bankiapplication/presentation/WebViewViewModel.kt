@@ -23,9 +23,8 @@ class WebViewViewModel(
     private val interactor: Interactor,
     private val checkPermissions: CheckPermissions
 
-
-
 ) : ViewModel() {
+    lateinit var webView: WebView
     private var urlList = mutableListOf<String>()
     private val networkStatusCallback = object :ConnectivityManager.NetworkCallback(){
         override fun onAvailable(network: Network) {
@@ -59,7 +58,6 @@ class WebViewViewModel(
             request: WebResourceRequest?
         ): Boolean {
             return super.shouldOverrideUrlLoading(view, request)
-
         }
         override fun shouldOverrideUrlLoading(view: WebView?, url: String?): Boolean {
             return super.shouldOverrideUrlLoading(view, url)
@@ -74,6 +72,7 @@ class WebViewViewModel(
     }
 
      fun showWebView(webView: WebView) {
+         this.webView = webView
          when(interactor.checkConnected()){
              500 -> {_viewStateLiveData.postValue(WebViewFragmentState.NoConnection)
                  interactor.startWebView(webView, webViewClient)}
@@ -125,9 +124,10 @@ class WebViewViewModel(
     }
     private fun showView(url: String){
         when(interactor.checkVpn()){
-            true -> {urlList.clear()
-                _viewStateLiveData.postValue(WebViewFragmentState.ShowViewVpn)}
-
+            true -> {if(urlList.size>=1) loadUrl(webView)
+                urlList.clear()
+                _viewStateLiveData.postValue(WebViewFragmentState.ShowViewVpn)
+            }
             false -> {url?.let { urlList.add(it) }
                 Log.d("myLog", urlList.toString())
                 _viewStateLiveData.postValue(WebViewFragmentState.ShowView(url, urlList, getStartUrl()))}
