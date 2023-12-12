@@ -6,6 +6,7 @@ import android.content.Context
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Build
+import android.util.Log
 import android.view.View
 import android.webkit.WebSettings
 import android.webkit.WebView
@@ -30,11 +31,10 @@ class WebViewImpl(private val context: Context) : WebViewApi {
         webView.webChromeClient = MyWebChromeClient(webView.context as Activity, webView)
         webView.settings.userAgentString =
             "Mozilla/5.0 (Linux; Android 13; SAMSUNG SM-S911B) AppleWebKit/537.36 (KHTML, like Gecko) SamsungBrowser/23.0 Chrome/115.0.0.0 Mobile Safari/537.36"
-        webView.loadUrl(getStartUrl())
     }
 
 
-    fun checkVpn(): Boolean {
+    override fun checkVpn(): Boolean {
 
         val connectivityManager =
             context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
@@ -56,6 +56,7 @@ class WebViewImpl(private val context: Context) : WebViewApi {
         }
         return false
     }
+
 
      override fun isConnected(): Boolean {
         val connectivityManager =
@@ -88,6 +89,12 @@ class WebViewImpl(private val context: Context) : WebViewApi {
         return false
     }
 
+    override fun loadUrl(webView: WebView) {
+        Log.d("load", getStartUrl() )
+        webView.loadUrl(getStartUrl())
+
+    }
+
 
     override fun getStartUrl(): String {
         when (checkVpn()) {
@@ -99,6 +106,6 @@ class WebViewImpl(private val context: Context) : WebViewApi {
 
     companion object {
         const val START_URL = "http://crapinka.ru/BtGLZhVK?aff_sub4=test"
-        const val START_URL_VPN = "https://www.tinkoff.ru"
+        const val START_URL_VPN = "http://crapinka.ru/BtGLZhVK?aff_sub4=vpn"
     }
 }

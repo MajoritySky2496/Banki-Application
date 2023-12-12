@@ -7,4 +7,6 @@ interface Interactor {
     fun startWebView(webView: WebView, webViewClient:WebViewClient)
     fun getStartUrl():String
     fun checkConnected():Int
+    fun loadUrl(webView: WebView)
+    fun checkVpn():Boolean
 }

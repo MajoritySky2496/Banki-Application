@@ -7,4 +7,6 @@ interface WebViewApi {
     fun startWebView(webView: WebView, webViewClient: WebViewClient)
     fun getStartUrl():String
     fun isConnected():Boolean
+    fun loadUrl(webView: WebView)
+    fun checkVpn():Boolean
 }

@@ -17,4 +17,12 @@ class RepositoryImpl(private val webViewApi: WebViewApi):Repository {
     override fun checkConnection(): Boolean {
         return webViewApi.isConnected()
     }
+
+    override fun loadUrl(webView: WebView) {
+        webViewApi.loadUrl(webView)
+    }
+
+    override fun checkVpn():Boolean {
+        return webViewApi.checkVpn()
+    }
 }

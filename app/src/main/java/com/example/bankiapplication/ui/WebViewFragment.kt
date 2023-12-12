@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.webkit.WebView
+import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import com.example.bankiapplication.databinding.FragmentWebviewBinding
 import com.example.bankiapplication.presentation.WebViewViewModel
@@ -13,10 +14,12 @@ import com.example.bankiapplication.util.BindingFragment
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.core.parameter.parametersOf
 
-class WebViewFragment:BindingFragment<FragmentWebviewBinding>() {
+class WebViewFragment : BindingFragment<FragmentWebviewBinding>() {
     private val viewModel: WebViewViewModel by viewModel { parametersOf() }
     lateinit var webView: WebView
-    var startUrl:String? =null
+    var startUrl: String? = null
+    private var currentUrl: String? = null
+    private val listUrl = mutableListOf<String>()
 
 
     override fun createBinding(
@@ -29,9 +32,11 @@ class WebViewFragment:BindingFragment<FragmentWebviewBinding>() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        webView = binding.webView
         viewModel.checkPermission(requireActivity())
         viewModel.viewStateLiveData.observe(requireActivity()) { render(it) }
-        webView = binding.webView
+
+        viewModel.networkStatus(requireContext())
         showWebView(webView)
         binding.arrowBack.setOnClickListener {
             webViewGoBack(webView)
@@ -69,22 +74,27 @@ class WebViewFragment:BindingFragment<FragmentWebviewBinding>() {
             is WebViewFragmentState.Loading -> showLoading()
             is WebViewFragmentState.ShowView -> showView(state.url, state.urlList, state.startUrl)
             is WebViewFragmentState.NoConnection -> showNoConnection()
+            is WebViewFragmentState.InternetAvailable -> showYesConnection()
+            is WebViewFragmentState.ShowViewVpn -> showVpnView()
         }
     }
 
     private fun showWebView(webView: WebView) {
+        this.webView = webView
         viewModel.showWebView(webView)
     }
 
     private fun webViewGoBack(webView: WebView) {
-        if(webView.url!=startUrl) {
+        if (webView.url != startUrl) {
             viewModel.webViewGoBack(webView)
         }
     }
-    private fun webViewGoForward(webView: WebView){
-            viewModel.webViewGoForward(webView)
+
+    private fun webViewGoForward(webView: WebView) {
+        viewModel.webViewGoForward(webView)
     }
-    private fun webViewReload(webView: WebView){
+
+    private fun webViewReload(webView: WebView) {
         viewModel.webViewReload(webView)
     }
 
@@ -92,34 +102,68 @@ class WebViewFragment:BindingFragment<FragmentWebviewBinding>() {
         requireActivity().finish()
     }
 
-    private fun showLoading(){
+    private fun showLoading() {
         binding.webView.visibility = View.GONE
         binding.progressBar.visibility = View.VISIBLE
         binding.toolbar.visibility = View.GONE
 
     }
-    private fun showView(currentUrl:String, urlList:MutableList<String>, startUrl:String){
+
+    private fun showView(currentUrl: String, urlList: MutableList<String>, startUrl: String) {
         this.startUrl = startUrl
-        if(currentUrl!=urlList.get(0)){
+        listUrl.addAll(urlList)
+        this.currentUrl = currentUrl
+        if (currentUrl != urlList.get(0)) {
             binding.webView.visibility = View.VISIBLE
             binding.progressBar.visibility = View.INVISIBLE
             binding.toolbar.visibility = View.VISIBLE
-        }else{
+            binding.toolbarVpn.visibility = View.GONE
+        } else {
             binding.webView.visibility = View.VISIBLE
             binding.progressBar.visibility = View.INVISIBLE
             binding.toolbar.visibility = View.GONE
+            binding.toolbarVpn.visibility = View.GONE
             binding.startAnimation.visibility = View.GONE
         }
-
     }
-    private fun showNoConnection(){
+
+    private fun showNoConnection() {
         binding.webView.visibility = View.INVISIBLE
         binding.progressBar.visibility = View.INVISIBLE
         binding.toolbar.visibility = View.INVISIBLE
         binding.startAnimation.visibility = View.GONE
         binding.errorInternet.visibility = View.VISIBLE
     }
-    private fun goToHomePage(){
+
+    private fun goToHomePage() {
         viewModel.goToHomePage(webView)
+    }
+
+    private fun showYesConnection() {
+        binding.errorInternet.visibility = View.GONE
+        if (listUrl.size >= 1) {
+            if (currentUrl != listUrl.get(0)) {
+                binding.webView.visibility = View.VISIBLE
+                binding.progressBar.visibility = View.INVISIBLE
+                binding.toolbar.visibility = View.VISIBLE
+            } else {
+                binding.webView.visibility = View.VISIBLE
+                binding.toolbar.visibility = View.GONE
+                binding.startAnimation.visibility = View.GONE
+            }
+        } else {
+            viewModel.loadUrl(webView)
+        }
+    }
+    private fun showVpnView(){
+        binding.webView.visibility = View.VISIBLE
+        binding.progressBar.visibility = View.INVISIBLE
+        binding.toolbar.visibility = View.VISIBLE
+        binding.startAnimation.visibility = View.GONE
+        showToast(requireContext(), "VPN включен!")
+
+    }
+    fun showToast(context: Context, message: String) {
+        Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
     }
 }
