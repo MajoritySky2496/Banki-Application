@@ -1,6 +1,11 @@
 package com.example.bankiapplication.presentation
 import android.app.Activity
+import android.content.Context
 import android.graphics.Bitmap
+import android.net.ConnectivityManager
+import android.net.Network
+import android.net.NetworkCapabilities
+import android.net.NetworkRequest
 import android.util.Log
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
@@ -19,13 +24,25 @@ class WebViewViewModel(
     private val checkPermissions: CheckPermissions
 
 ) : ViewModel() {
-
+    lateinit var webView: WebView
     private var urlList = mutableListOf<String>()
+    private val networkStatusCallback = object :ConnectivityManager.NetworkCallback(){
+        override fun onAvailable(network: Network) {
+            super.onAvailable(network)
+            _viewStateLiveData.postValue(WebViewFragmentState.InternetAvailable)
+            Log.d("checkInternet", "OK")
+        }
+
+        override fun onLost(network: Network) {
+            super.onLost(network)
+            Log.d("checkInternet", "Error")
+            _viewStateLiveData.postValue(WebViewFragmentState.NoConnection)
+        }
+    }
     private val webViewClient = object :WebViewClient(){
         override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
             super.onPageStarted(view, url, favicon)
             showLoading()
-            url?.let { urlList.add(it) }
             Log.d("myLog", "start")
         }
 
@@ -41,7 +58,6 @@ class WebViewViewModel(
             request: WebResourceRequest?
         ): Boolean {
             return super.shouldOverrideUrlLoading(view, request)
-
         }
         override fun shouldOverrideUrlLoading(view: WebView?, url: String?): Boolean {
             return super.shouldOverrideUrlLoading(view, url)
@@ -56,11 +72,12 @@ class WebViewViewModel(
     }
 
      fun showWebView(webView: WebView) {
+         this.webView = webView
          when(interactor.checkConnected()){
-             500 -> _viewStateLiveData.postValue(WebViewFragmentState.NoConnection)
+             500 -> {_viewStateLiveData.postValue(WebViewFragmentState.NoConnection)
+                 interactor.startWebView(webView, webViewClient)}
              200 -> interactor.startWebView(webView, webViewClient)
          }
-
     }
 
     fun webViewGoBack(webView: WebView) {
@@ -82,7 +99,11 @@ class WebViewViewModel(
     }
 
     fun webViewReload(webView: WebView) {
-        webView.reload()
+        if(urlList.size>=1){
+            webView.reload()
+        }else{
+            interactor.loadUrl(webView)
+        }
     }
 
     fun checkPermission(activity: Activity) {
@@ -102,15 +123,31 @@ class WebViewViewModel(
         _viewStateLiveData.postValue(WebViewFragmentState.Loading)
     }
     private fun showView(url: String){
-        _viewStateLiveData.postValue(WebViewFragmentState.ShowView(url, urlList, getStartUrl()))
+        when(interactor.checkVpn()){
+            true -> {if(urlList.size>=1) loadUrl(webView)
+                urlList.clear()
+                _viewStateLiveData.postValue(WebViewFragmentState.ShowViewVpn)
+            }
+            false -> {url?.let { urlList.add(it) }
+                Log.d("myLog", urlList.toString())
+                _viewStateLiveData.postValue(WebViewFragmentState.ShowView(url, urlList, getStartUrl()))}
+        }
     }
     private fun getStartUrl():String{
         return interactor.getStartUrl()
-
     }
     fun goToHomePage(webView: WebView){
-        while (webView.canGoBack()){
-            webView.goBack()
-        }
+        interactor.loadUrl(webView)
+        urlList.clear()
+    }
+    fun networkStatus(context: Context){
+        val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val networkRequest = NetworkRequest.Builder()
+            .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+            .build()
+        connectivityManager.registerNetworkCallback(networkRequest, networkStatusCallback)
+    }
+    fun loadUrl(webView: WebView){
+        interactor.loadUrl(webView)
     }
 }

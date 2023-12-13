@@ -48,6 +48,7 @@
             app:layout_constraintTop_toTopOf="parent"
             android:layout_marginEnd="10dp"/>
 
+
         <ImageView
             android:id="@+id/arrow_forward"
             android:layout_width="wrap_content"
@@ -79,6 +80,7 @@
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>
+
     <ProgressBar
         android:id="@+id/progress_bar"
         android:layout_width="wrap_content"
@@ -96,8 +98,10 @@
         android:src="@drawable/start_view_gif"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0" />
 
     <TextView
         android:id="@+id/error_internet"

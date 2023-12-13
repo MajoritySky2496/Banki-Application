@@ -20,4 +20,12 @@ class InteractorImpl(private val repository: Repository):Interactor {
             return 200
         }
     }
+
+    override fun loadUrl(webView: WebView) {
+        repository.loadUrl(webView)
+    }
+
+    override fun checkVpn():Boolean {
+        return repository.checkVpn()
+    }
 }
