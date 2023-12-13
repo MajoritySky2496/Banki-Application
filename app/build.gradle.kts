@@ -63,7 +63,7 @@ dependencies {
 
     //FireBase
     implementation(platform("com.google.firebase:firebase-bom:32.5.0"))
-    implementation("com.google.firebase:firebase-messaging-ktx:23.3.1")
+    implementation("com.google.firebase:firebase-messaging-ktx:23.4.0")
 
     //RxPermission
     implementation ("com.github.tbruyelle:rxpermissions:0.12")
@@ -74,6 +74,9 @@ dependencies {
 
     //AppMetrica SDK
     implementation ("com.yandex.android:mobmetricalib:5.3.0")
+    implementation ("com.yandex.android:mobmetricapushlib:2.3.2")
+    implementation ("androidx.legacy:legacy-support-v4:1.0.0")
+    implementation ("com.google.android.gms:play-services-base:18.2.0")
 
     // Import the BoM for the Firebase platform
     implementation(platform("com.google.firebase:firebase-bom:32.6.0"))
@@ -85,4 +88,5 @@ dependencies {
 
     //Coroutienes
     implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
+
 }
