@@ -79,7 +79,7 @@ class WebViewFragment : BindingFragment<FragmentWebviewBinding>() {
             is WebViewFragmentState.ShowView -> showView(state.url, state.urlList, state.startUrl)
             is WebViewFragmentState.NoConnection -> showNoConnection()
             is WebViewFragmentState.InternetAvailable -> showYesConnection()
-            is WebViewFragmentState.ShowViewVpn -> showVpnView()
+            is WebViewFragmentState.ShowViewVpn -> showVpnView(state.url)
         }
     }
 
@@ -114,6 +114,7 @@ class WebViewFragment : BindingFragment<FragmentWebviewBinding>() {
     }
 
     private fun showView(currentUrl: String, urlList: MutableList<String>, startUrl: String) {
+        sendReportEvent(currentUrl)
         this.startUrl = startUrl
         listUrl.addAll(urlList)
         this.currentUrl = currentUrl
@@ -158,7 +159,8 @@ class WebViewFragment : BindingFragment<FragmentWebviewBinding>() {
             viewModel.loadUrl(webView)
         }
     }
-    private fun showVpnView(){
+    private fun showVpnView(currentUrl:String){
+        sendReportEvent(currentUrl)
         binding.webView.visibility = View.VISIBLE
         binding.progressBar.visibility = View.INVISIBLE
         binding.toolbar.visibility = View.VISIBLE
@@ -168,5 +170,8 @@ class WebViewFragment : BindingFragment<FragmentWebviewBinding>() {
     }
     fun showToast(context: Context, message: String) {
         Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+    }
+    fun sendReportEvent(currentUrl: String){
+        viewModel.sendReport(requireContext(), currentUrl)
     }
 }

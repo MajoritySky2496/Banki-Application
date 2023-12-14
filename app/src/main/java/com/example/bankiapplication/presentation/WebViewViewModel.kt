@@ -17,12 +17,15 @@ import androidx.lifecycle.ViewModel
 import com.example.bankiapplication.domain.Interactor
 import com.example.bankiapplication.ui.model.WebViewFragmentState
 import com.example.bankiapplication.util.CheckPermissions
+import com.example.bankiapplication.util.app.App
 import com.google.android.gms.tasks.OnCompleteListener
 import com.google.firebase.messaging.FirebaseMessaging
+import com.yandex.metrica.YandexMetrica
 
 class WebViewViewModel(
     private val interactor: Interactor,
-    private val checkPermissions: CheckPermissions
+    private val checkPermissions: CheckPermissions,
+
 
 ) : ViewModel() {
     lateinit var webView: WebView
@@ -127,7 +130,7 @@ class WebViewViewModel(
         when(interactor.checkVpn()){
             true -> {if(urlList.size>=1) loadUrl(webView)
                 urlList.clear()
-                _viewStateLiveData.postValue(WebViewFragmentState.ShowViewVpn)
+                _viewStateLiveData.postValue(WebViewFragmentState.ShowViewVpn(url))
             }
             false -> {url?.let { urlList.add(it) }
                 Log.d("myLog", urlList.toString())
@@ -153,5 +156,8 @@ class WebViewViewModel(
     }
     fun handleIntent(intent: Intent){
         interactor.handleIntent(intent)
+    }
+    fun sendReport(context: Context, currentUrl:String){
+        YandexMetrica.getReporter(context, App.APP_METRICA_KEY).reportEvent(currentUrl)
     }
 }
