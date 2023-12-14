@@ -85,8 +85,7 @@ dependencies {
     // When using the BoM, you don't specify versions in Firebase library dependencies
     implementation("com.google.firebase:firebase-crashlytics")
 
-
-    //Coroutienes
-    implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
+    //Facebook
+    implementation ("com.facebook.android:facebook-android-sdk:latest.release")
 
 }
