@@ -32,9 +32,12 @@ class WebViewFragment : BindingFragment<FragmentWebviewBinding>() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+
         webView = binding.webView
         viewModel.checkPermission(requireActivity())
         viewModel.viewStateLiveData.observe(requireActivity()) { render(it) }
+        viewModel.handleIntent(requireActivity().intent)
+
 
         viewModel.networkStatus(requireContext())
         showWebView(webView)
@@ -52,6 +55,7 @@ class WebViewFragment : BindingFragment<FragmentWebviewBinding>() {
         }
 
     }
+
 
     override fun onAttach(context: Context) {
         super.onAttach(context)

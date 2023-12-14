@@ -3,8 +3,10 @@ package com.example.bankiapplication.data
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
+import android.content.Intent
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
+import android.net.Uri
 import android.os.Build
 import android.util.Log
 import android.view.View
@@ -15,6 +17,11 @@ import com.example.bankiapplication.data.api.WebViewApi
 import com.example.bankiapplication.util.webview.MyWebChromeClient
 
 class WebViewImpl(private val context: Context) : WebViewApi {
+
+    private var startUrl = "http://crapinka.ru/BtGLZhVK?aff_sub4=test"
+    private var startUrlVpn = "http://crapinka.ru/BtGLZhVK?aff_sub4=vpn"
+    private val deepLinkList = mutableListOf<String?>()
+
 
     @SuppressLint("SetJavaScriptEnabled")
     override fun startWebView(webView: WebView, webViewClient: WebViewClient) {
@@ -57,8 +64,13 @@ class WebViewImpl(private val context: Context) : WebViewApi {
         return false
     }
 
+    override fun handleIntent(intent: Intent){
+        val appLinkData: Uri? = intent.data
+        getUrlLink(appLinkData)
+    }
 
-     override fun isConnected(): Boolean {
+
+    override fun isConnected(): Boolean {
         val connectivityManager =
             context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
 
@@ -98,14 +110,28 @@ class WebViewImpl(private val context: Context) : WebViewApi {
 
     override fun getStartUrl(): String {
         when (checkVpn()) {
-            false -> return START_URL
-            true -> return START_URL_VPN
+            false -> return addDeeplink(deepLinkList, startUrl)
+            true -> return addDeeplink(deepLinkList, startUrlVpn)
         }
 
     }
+    private fun getUrlLink(appLinkData:Uri?){
+        Log.d("appLinksData", "$appLinkData")
+        val deeplink = appLinkData?.getQueryParameter("aff_sub2")
+        Log.d("appLinksData", "$deeplink")
+        val deeplink2 = appLinkData?.getQueryParameter("aff_sub3")
+        Log.d("appLinksData", "$deeplink2")
+        val deepLinkList = listOf(deeplink, deeplink2)
+        this.deepLinkList.addAll(deepLinkList)
+        Log.d("appLinksData", "$deepLinkList")
+    }
+    private fun addDeeplink(deepLinkList:List<String?>, url:String):String{
+        val startUrlList = url.split("?")
+        val starUrldeeplink = startUrlList.get(1)
+        val host = startUrlList.get(0)
+        val urlStartNew = host+"?"+"aff_sub2="+deepLinkList.get(0)+"&"+"aff_sub3="+deepLinkList.get(1)+"&"+starUrldeeplink
+        Log.d("urlStartNew", urlStartNew)
+        return urlStartNew
 
-    companion object {
-        const val START_URL = "http://crapinka.ru/BtGLZhVK?aff_sub4=test"
-        const val START_URL_VPN = "http://crapinka.ru/BtGLZhVK?aff_sub4=vpn"
     }
 }

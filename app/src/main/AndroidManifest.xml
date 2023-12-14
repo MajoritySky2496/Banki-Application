@@ -26,11 +26,16 @@
         <activity
             android:name=".RootActivity"
             android:screenOrientation="portrait"
-            android:exported="true">
-            <intent-filter>
+            android:exported="true"
+            android:launchMode="singleTask">
+            <intent-filter android:autoVerify="true">
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="bankiapplication" />
+                <data android:host="com.example.bankiapplication"/>
             </intent-filter>
         </activity>
         <service

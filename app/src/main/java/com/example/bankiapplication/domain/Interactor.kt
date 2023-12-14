@@ -1,5 +1,6 @@
 package com.example.bankiapplication.domain
 
+import android.content.Intent
 import android.webkit.WebView
 import android.webkit.WebViewClient
 
@@ -9,4 +10,5 @@ interface Interactor {
     fun checkConnected():Int
     fun loadUrl(webView: WebView)
     fun checkVpn():Boolean
+    fun handleIntent(intent: Intent)
 }
