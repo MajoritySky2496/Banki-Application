@@ -1,6 +1,7 @@
 package com.example.bankiapplication.presentation
 import android.app.Activity
 import android.content.Context
+import android.content.Intent
 import android.graphics.Bitmap
 import android.net.ConnectivityManager
 import android.net.Network
@@ -149,5 +150,8 @@ class WebViewViewModel(
     }
     fun loadUrl(webView: WebView){
         interactor.loadUrl(webView)
+    }
+    fun handleIntent(intent: Intent){
+        interactor.handleIntent(intent)
     }
 }

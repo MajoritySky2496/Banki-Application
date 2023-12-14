@@ -1,5 +1,6 @@
 package com.example.bankiapplication.domain
 
+import android.content.Intent
 import android.webkit.WebView
 import android.webkit.WebViewClient
 
@@ -27,5 +28,9 @@ class InteractorImpl(private val repository: Repository):Interactor {
 
     override fun checkVpn():Boolean {
         return repository.checkVpn()
+    }
+
+    override fun handleIntent(intent: Intent) {
+        repository.handleIntent(intent)
     }
 }
