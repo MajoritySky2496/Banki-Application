@@ -48,12 +48,13 @@ class WebViewViewModel(
         override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
             super.onPageStarted(view, url, favicon)
             showLoading()
+            showView(url!!)
             Log.d("myLog", "start")
         }
 
         override fun onPageFinished(view: WebView?, url: String?) {
             super.onPageFinished(view, url)
-            showView(url!!)
+
             Log.d("myLog", "finish")
 
         }

@@ -8,6 +8,7 @@ import android.webkit.WebView
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.lifecycle.lifecycleScope
+import com.example.bankiapplication.R
 import com.example.bankiapplication.databinding.FragmentWebviewBinding
 import com.example.bankiapplication.presentation.WebViewViewModel
 import com.example.bankiapplication.ui.model.WebViewFragmentState
@@ -166,8 +167,7 @@ class WebViewFragment : BindingFragment<FragmentWebviewBinding>() {
         binding.webView.visibility = View.VISIBLE
         binding.progressBar.visibility = View.INVISIBLE
         binding.toolbar.visibility = View.VISIBLE
-        showToast(requireContext(), "VPN включен!")
-
+        showToast(requireContext(), resources.getString(R.string.vpn))
     }
     private fun showToast(context: Context, message: String) {
         Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
