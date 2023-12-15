@@ -132,7 +132,7 @@ class WebViewViewModel(
                 urlList.clear()
                 _viewStateLiveData.postValue(WebViewFragmentState.ShowViewVpn(url))
             }
-            false -> {url?.let { urlList.add(it) }
+            false -> {url.let { urlList.add(it) }
                 Log.d("myLog", urlList.toString())
                 _viewStateLiveData.postValue(WebViewFragmentState.ShowView(url, urlList, getStartUrl()))}
         }
@@ -160,4 +160,5 @@ class WebViewViewModel(
     fun sendReport(context: Context, currentUrl:String){
         YandexMetrica.getReporter(context, App.APP_METRICA_KEY).reportEvent(currentUrl)
     }
+
 }

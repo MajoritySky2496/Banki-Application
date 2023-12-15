@@ -20,7 +20,8 @@ class App:Application() {
         val config = YandexMetricaConfig.newConfigBuilder(APP_METRICA_KEY).build()
         YandexMetrica.activate(applicationContext, config)
         YandexMetrica.enableActivityAutoTracking(this)
-        YandexMetricaPush.init(getApplicationContext());
+        YandexMetricaPush.init(applicationContext)
+
         startKoin {
             androidContext(this@App)
             modules(dataModule, interactorModule, repositoryModule, viewModelModule, permissionModule)

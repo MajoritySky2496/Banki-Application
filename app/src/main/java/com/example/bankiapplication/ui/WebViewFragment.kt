@@ -7,10 +7,16 @@ import android.view.ViewGroup
 import android.webkit.WebView
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
+import androidx.lifecycle.lifecycleScope
 import com.example.bankiapplication.databinding.FragmentWebviewBinding
 import com.example.bankiapplication.presentation.WebViewViewModel
 import com.example.bankiapplication.ui.model.WebViewFragmentState
 import com.example.bankiapplication.util.BindingFragment
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.core.parameter.parametersOf
 
@@ -31,8 +37,7 @@ class WebViewFragment : BindingFragment<FragmentWebviewBinding>() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-
+        showStartPageAnimation()
         webView = binding.webView
         viewModel.checkPermission(requireActivity())
         viewModel.viewStateLiveData.observe(requireActivity()) { render(it) }
@@ -107,7 +112,7 @@ class WebViewFragment : BindingFragment<FragmentWebviewBinding>() {
     }
 
     private fun showLoading() {
-        binding.webView.visibility = View.GONE
+//        binding.webView.visibility = View.GONE
         binding.progressBar.visibility = View.VISIBLE
         binding.toolbar.visibility = View.GONE
 
@@ -127,7 +132,7 @@ class WebViewFragment : BindingFragment<FragmentWebviewBinding>() {
             binding.webView.visibility = View.VISIBLE
             binding.progressBar.visibility = View.INVISIBLE
             binding.toolbar.visibility = View.GONE
-            binding.startAnimation.visibility = View.GONE
+
         }
     }
 
@@ -135,7 +140,6 @@ class WebViewFragment : BindingFragment<FragmentWebviewBinding>() {
         binding.webView.visibility = View.INVISIBLE
         binding.progressBar.visibility = View.INVISIBLE
         binding.toolbar.visibility = View.INVISIBLE
-        binding.startAnimation.visibility = View.GONE
         binding.errorInternet.visibility = View.VISIBLE
     }
 
@@ -153,7 +157,7 @@ class WebViewFragment : BindingFragment<FragmentWebviewBinding>() {
             } else {
                 binding.webView.visibility = View.VISIBLE
                 binding.toolbar.visibility = View.GONE
-                binding.startAnimation.visibility = View.GONE
+
             }
         } else {
             viewModel.loadUrl(webView)
@@ -164,14 +168,20 @@ class WebViewFragment : BindingFragment<FragmentWebviewBinding>() {
         binding.webView.visibility = View.VISIBLE
         binding.progressBar.visibility = View.INVISIBLE
         binding.toolbar.visibility = View.VISIBLE
-        binding.startAnimation.visibility = View.GONE
         showToast(requireContext(), "VPN включен!")
 
     }
-    fun showToast(context: Context, message: String) {
+    private fun showToast(context: Context, message: String) {
         Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
     }
-    fun sendReportEvent(currentUrl: String){
+    private fun sendReportEvent(currentUrl: String){
         viewModel.sendReport(requireContext(), currentUrl)
+    }
+    private fun showStartPageAnimation(){
+        this.lifecycleScope.launch{
+            delay(3000)
+            Dispatchers.Main
+            binding.startAnimation.visibility =View.GONE
+        }
     }
 }

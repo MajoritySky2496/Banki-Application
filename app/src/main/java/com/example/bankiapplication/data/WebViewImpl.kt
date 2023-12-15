@@ -29,6 +29,7 @@ class WebViewImpl(private val context: Context) : WebViewApi {
         webView.settings.domStorageEnabled = true
         webView.settings.allowContentAccess = true
         webView.settings.setGeolocationEnabled(true)
+        webView.isHorizontalScrollBarEnabled = false
         webView.settings.allowFileAccess = true
         webView.settings.mixedContentMode = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
         webView.getSettings().setCacheMode(WebSettings.LOAD_CACHE_ELSE_NETWORK)
