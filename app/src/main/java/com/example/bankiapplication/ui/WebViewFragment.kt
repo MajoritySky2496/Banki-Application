@@ -112,10 +112,8 @@ class WebViewFragment : BindingFragment<FragmentWebviewBinding>() {
     }
 
     private fun showLoading() {
-//        binding.webView.visibility = View.GONE
         binding.progressBar.visibility = View.VISIBLE
         binding.toolbar.visibility = View.GONE
-
     }
 
     private fun showView(currentUrl: String, urlList: MutableList<String>, startUrl: String) {
@@ -123,7 +121,7 @@ class WebViewFragment : BindingFragment<FragmentWebviewBinding>() {
         this.startUrl = startUrl
         listUrl.addAll(urlList)
         this.currentUrl = currentUrl
-        if (currentUrl != urlList.get(0)) {
+        if (currentUrl != startUrl) {
             binding.webView.visibility = View.VISIBLE
             binding.progressBar.visibility = View.INVISIBLE
             binding.toolbar.visibility = View.VISIBLE

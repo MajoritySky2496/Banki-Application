@@ -30,6 +30,7 @@ class WebViewViewModel(
 ) : ViewModel() {
     lateinit var webView: WebView
     private var urlList = mutableListOf<String>()
+    private var startUrl:String? = null
     private val networkStatusCallback = object :ConnectivityManager.NetworkCallback(){
         override fun onAvailable(network: Network) {
             super.onAvailable(network)
@@ -134,7 +135,10 @@ class WebViewViewModel(
             }
             false -> {url.let { urlList.add(it) }
                 Log.d("myLog", urlList.toString())
-                _viewStateLiveData.postValue(WebViewFragmentState.ShowView(url, urlList, getStartUrl()))}
+                if(startUrl==null){
+                    startUrl = url
+                }
+                _viewStateLiveData.postValue(WebViewFragmentState.ShowView(url, urlList, startUrl!!))}
         }
     }
     private fun getStartUrl():String{
