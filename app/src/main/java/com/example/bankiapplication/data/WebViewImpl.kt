@@ -22,7 +22,6 @@ class WebViewImpl(private val context: Context) : WebViewApi {
     private var startUrlVpn = "http://crapinka.ru/BtGLZhVK?aff_sub4=vpn"
     private val deepLinkList = mutableListOf<String?>()
 
-
     @SuppressLint("SetJavaScriptEnabled")
     override fun startWebView(webView: WebView, webViewClient: WebViewClient) {
         webView.settings.javaScriptEnabled = true
@@ -114,7 +113,6 @@ class WebViewImpl(private val context: Context) : WebViewApi {
             false -> return addDeeplink(deepLinkList, startUrl)
             true -> return addDeeplink(deepLinkList, startUrlVpn)
         }
-
     }
     private fun getUrlLink(appLinkData:Uri?){
         Log.d("appLinksData", "$appLinkData")
@@ -133,6 +131,5 @@ class WebViewImpl(private val context: Context) : WebViewApi {
         val urlStartNew = host+"?"+"aff_sub2="+deepLinkList.get(0)+"&"+"aff_sub3="+deepLinkList.get(1)+"&"+starUrldeeplink
         Log.d("urlStartNew", urlStartNew)
         return urlStartNew
-
     }
 }

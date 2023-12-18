@@ -142,9 +142,7 @@ class WebViewViewModel(
                 _viewStateLiveData.postValue(WebViewFragmentState.ShowView(url, urlList, startUrl!!))}
         }
     }
-    private fun getStartUrl():String{
-        return interactor.getStartUrl()
-    }
+
     fun goToHomePage(webView: WebView){
         interactor.loadUrl(webView)
         urlList.clear()
