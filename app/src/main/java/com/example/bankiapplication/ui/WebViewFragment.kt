@@ -1,16 +1,25 @@
 package com.example.bankiapplication.ui
+
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.webkit.WebView
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
+import androidx.lifecycle.lifecycleScope
+import com.example.bankiapplication.R
 import com.example.bankiapplication.databinding.FragmentWebviewBinding
 import com.example.bankiapplication.presentation.WebViewViewModel
 import com.example.bankiapplication.ui.model.WebViewFragmentState
 import com.example.bankiapplication.util.BindingFragment
+import com.google.android.gms.ads.identifier.AdvertisingIdClient
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.core.parameter.parametersOf
 
@@ -31,12 +40,14 @@ class WebViewFragment : BindingFragment<FragmentWebviewBinding>() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-
+        showStartPageAnimation()
         webView = binding.webView
         viewModel.checkPermission(requireActivity())
         viewModel.viewStateLiveData.observe(requireActivity()) { render(it) }
         viewModel.handleIntent(requireActivity().intent)
+        getAdId()
+
+
 
 
         viewModel.networkStatus(requireContext())
@@ -79,7 +90,7 @@ class WebViewFragment : BindingFragment<FragmentWebviewBinding>() {
             is WebViewFragmentState.ShowView -> showView(state.url, state.urlList, state.startUrl)
             is WebViewFragmentState.NoConnection -> showNoConnection()
             is WebViewFragmentState.InternetAvailable -> showYesConnection()
-            is WebViewFragmentState.ShowViewVpn -> showVpnView()
+            is WebViewFragmentState.ShowViewVpn -> showVpnView(state.url)
         }
     }
 
@@ -107,17 +118,16 @@ class WebViewFragment : BindingFragment<FragmentWebviewBinding>() {
     }
 
     private fun showLoading() {
-        binding.webView.visibility = View.GONE
         binding.progressBar.visibility = View.VISIBLE
         binding.toolbar.visibility = View.GONE
-
     }
 
     private fun showView(currentUrl: String, urlList: MutableList<String>, startUrl: String) {
+        sendReportEvent(currentUrl)
         this.startUrl = startUrl
         listUrl.addAll(urlList)
         this.currentUrl = currentUrl
-        if (currentUrl != urlList.get(0)) {
+        if (currentUrl != startUrl) {
             binding.webView.visibility = View.VISIBLE
             binding.progressBar.visibility = View.INVISIBLE
             binding.toolbar.visibility = View.VISIBLE
@@ -126,7 +136,7 @@ class WebViewFragment : BindingFragment<FragmentWebviewBinding>() {
             binding.webView.visibility = View.VISIBLE
             binding.progressBar.visibility = View.INVISIBLE
             binding.toolbar.visibility = View.GONE
-            binding.startAnimation.visibility = View.GONE
+
         }
     }
 
@@ -134,7 +144,6 @@ class WebViewFragment : BindingFragment<FragmentWebviewBinding>() {
         binding.webView.visibility = View.INVISIBLE
         binding.progressBar.visibility = View.INVISIBLE
         binding.toolbar.visibility = View.INVISIBLE
-        binding.startAnimation.visibility = View.GONE
         binding.errorInternet.visibility = View.VISIBLE
     }
 
@@ -152,21 +161,42 @@ class WebViewFragment : BindingFragment<FragmentWebviewBinding>() {
             } else {
                 binding.webView.visibility = View.VISIBLE
                 binding.toolbar.visibility = View.GONE
-                binding.startAnimation.visibility = View.GONE
+
             }
         } else {
             viewModel.loadUrl(webView)
         }
     }
-    private fun showVpnView(){
+
+    private fun showVpnView(currentUrl: String) {
+        sendReportEvent(currentUrl)
         binding.webView.visibility = View.VISIBLE
         binding.progressBar.visibility = View.INVISIBLE
         binding.toolbar.visibility = View.VISIBLE
-        binding.startAnimation.visibility = View.GONE
-        showToast(requireContext(), "VPN включен!")
-
+        showToast(requireContext(), resources.getString(R.string.vpn))
     }
-    fun showToast(context: Context, message: String) {
+
+    private fun showToast(context: Context, message: String) {
         Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
     }
+
+    private fun sendReportEvent(currentUrl: String) {
+        viewModel.sendReport(requireContext(), currentUrl)
+    }
+
+    private fun showStartPageAnimation() {
+        this.lifecycleScope.launch {
+            delay(3000)
+            Dispatchers.Main
+            binding.startAnimation.visibility = View.GONE
+        }
+    }
+    private fun getAdId(){
+        GlobalScope.launch {
+            val adInfo = AdvertisingIdClient.getAdvertisingIdInfo(requireContext())
+            Log.d("text", adInfo.id ?: "unknown")
+
+        }
+    }
+
 }

@@ -11,7 +11,6 @@ class RootActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_root)
-
     }
 
     override fun onNewIntent(intent: Intent?) {

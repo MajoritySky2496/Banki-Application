@@ -8,7 +8,6 @@ import android.net.Network
 import android.net.NetworkCapabilities
 import android.net.NetworkRequest
 import android.util.Log
-import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.lifecycle.LiveData
@@ -17,16 +16,20 @@ import androidx.lifecycle.ViewModel
 import com.example.bankiapplication.domain.Interactor
 import com.example.bankiapplication.ui.model.WebViewFragmentState
 import com.example.bankiapplication.util.CheckPermissions
+import com.example.bankiapplication.util.app.App
 import com.google.android.gms.tasks.OnCompleteListener
 import com.google.firebase.messaging.FirebaseMessaging
+import com.yandex.metrica.YandexMetrica
 
 class WebViewViewModel(
     private val interactor: Interactor,
-    private val checkPermissions: CheckPermissions
+    private val checkPermissions: CheckPermissions,
+
 
 ) : ViewModel() {
     lateinit var webView: WebView
     private var urlList = mutableListOf<String>()
+    private var startUrl:String? = null
     private val networkStatusCallback = object :ConnectivityManager.NetworkCallback(){
         override fun onAvailable(network: Network) {
             super.onAvailable(network)
@@ -44,24 +47,15 @@ class WebViewViewModel(
         override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
             super.onPageStarted(view, url, favicon)
             showLoading()
+            showView(url!!)
             Log.d("myLog", "start")
         }
 
         override fun onPageFinished(view: WebView?, url: String?) {
             super.onPageFinished(view, url)
-            showView(url!!)
+
             Log.d("myLog", "finish")
 
-        }
-
-        override fun shouldOverrideUrlLoading(
-            view: WebView?,
-            request: WebResourceRequest?
-        ): Boolean {
-            return super.shouldOverrideUrlLoading(view, request)
-        }
-        override fun shouldOverrideUrlLoading(view: WebView?, url: String?): Boolean {
-            return super.shouldOverrideUrlLoading(view, url)
         }
     }
 
@@ -127,16 +121,17 @@ class WebViewViewModel(
         when(interactor.checkVpn()){
             true -> {if(urlList.size>=1) loadUrl(webView)
                 urlList.clear()
-                _viewStateLiveData.postValue(WebViewFragmentState.ShowViewVpn)
+                _viewStateLiveData.postValue(WebViewFragmentState.ShowViewVpn(url))
             }
-            false -> {url?.let { urlList.add(it) }
+            false -> {url.let { urlList.add(it) }
                 Log.d("myLog", urlList.toString())
-                _viewStateLiveData.postValue(WebViewFragmentState.ShowView(url, urlList, getStartUrl()))}
+                if(startUrl==null){
+                    startUrl = url
+                }
+                _viewStateLiveData.postValue(WebViewFragmentState.ShowView(url, urlList, startUrl!!))}
         }
     }
-    private fun getStartUrl():String{
-        return interactor.getStartUrl()
-    }
+
     fun goToHomePage(webView: WebView){
         interactor.loadUrl(webView)
         urlList.clear()
@@ -154,4 +149,8 @@ class WebViewViewModel(
     fun handleIntent(intent: Intent){
         interactor.handleIntent(intent)
     }
+    fun sendReport(context: Context, currentUrl:String){
+        YandexMetrica.getReporter(context, App.APP_METRICA_KEY).reportEvent(currentUrl)
+    }
+
 }
