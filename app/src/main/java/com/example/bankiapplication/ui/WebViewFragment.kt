@@ -15,7 +15,7 @@ import com.example.bankiapplication.databinding.FragmentWebviewBinding
 import com.example.bankiapplication.presentation.WebViewViewModel
 import com.example.bankiapplication.ui.model.WebViewFragmentState
 import com.example.bankiapplication.util.BindingFragment
-import com.google.android.gms.ads.identifier.AdvertisingIdClient
+
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
@@ -45,7 +45,7 @@ class WebViewFragment : BindingFragment<FragmentWebviewBinding>() {
         viewModel.checkPermission(requireActivity())
         viewModel.viewStateLiveData.observe(requireActivity()) { render(it) }
         viewModel.handleIntent(requireActivity().intent)
-        getAdId()
+
 
 
 
@@ -191,12 +191,6 @@ class WebViewFragment : BindingFragment<FragmentWebviewBinding>() {
             binding.startAnimation.visibility = View.GONE
         }
     }
-    private fun getAdId(){
-        GlobalScope.launch {
-            val adInfo = AdvertisingIdClient.getAdvertisingIdInfo(requireContext())
-            Log.d("text", adInfo.id ?: "unknown")
 
-        }
-    }
 
 }
