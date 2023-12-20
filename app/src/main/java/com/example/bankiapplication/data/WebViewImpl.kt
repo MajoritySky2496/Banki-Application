@@ -13,14 +13,16 @@ import android.view.View
 import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import androidx.core.net.toUri
 import com.example.bankiapplication.data.api.WebViewApi
 import com.example.bankiapplication.util.webview.MyWebChromeClient
 
 class WebViewImpl(private val context: Context) : WebViewApi {
 
-    private var startUrl = "http://crapinka.ru/BtGLZhVK?aff_sub4=test"
-    private var startUrlVpn = "http://crapinka.ru/BtGLZhVK?aff_sub4=vpn"
+    private var startUrl = "https://crapinka.ru/BtGLZhVK?aff_sub1=test.zaim.german&aff_sub2=%7Bdeep_adv%7D&aff_sub3=%7Bdeep_place%7D&aff_sub4=boy_showcase&aff_sub5=%7Bdevice_id%7D"
+    private var startUrlVpn = "https://crapinka.ru/BtGLZhVK?aff_sub1=test.zaim.german&aff_sub2={deep_adv}&aff_sub3={deep_place}&aff_sub4=vpn&aff_sub5={device_id}"
     private val deepLinkList = mutableListOf<String?>()
+    private val newDeepLinkList = mutableListOf<String?>()
 
     @SuppressLint("SetJavaScriptEnabled")
     override fun startWebView(webView: WebView, webViewClient: WebViewClient) {
@@ -66,7 +68,7 @@ class WebViewImpl(private val context: Context) : WebViewApi {
 
     override fun handleIntent(intent: Intent){
         val appLinkData: Uri? = intent.data
-        getUrlLink(appLinkData)
+        getNewUrlParameters(appLinkData)
     }
 
 
@@ -110,26 +112,51 @@ class WebViewImpl(private val context: Context) : WebViewApi {
 
     override fun getStartUrl(): String {
         when (checkVpn()) {
-            false -> return addDeeplink(deepLinkList, startUrl)
-            true -> return addDeeplink(deepLinkList, startUrlVpn)
+            false -> return addDeeplink( startUrl)
+            true -> return addDeeplink( startUrlVpn)
         }
     }
-    private fun getUrlLink(appLinkData:Uri?){
+    private fun getNewUrlParameters(appLinkData:Uri?){
         Log.d("appLinksData", "$appLinkData")
         val deeplink = appLinkData?.getQueryParameter("aff_sub2")
         Log.d("appLinksData", "$deeplink")
         val deeplink2 = appLinkData?.getQueryParameter("aff_sub3")
         Log.d("appLinksData", "$deeplink2")
         val deepLinkList = listOf(deeplink, deeplink2)
-        this.deepLinkList.addAll(deepLinkList)
+        this.newDeepLinkList.addAll(deepLinkList)
         Log.d("appLinksData", "$deepLinkList")
     }
-    private fun addDeeplink(deepLinkList:List<String?>, url:String):String{
-        val startUrlList = url.split("?")
-        val starUrldeeplink = startUrlList.get(1)
-        val host = startUrlList.get(0)
-        val urlStartNew = host+"?"+"aff_sub2="+deepLinkList.get(0)+"&"+"aff_sub3="+deepLinkList.get(1)+"&"+starUrldeeplink
-        Log.d("urlStartNew", urlStartNew)
-        return urlStartNew
+    private fun getUrlParameters(url:String){
+        val uri = url.toUri()
+        val deepLink1 = uri.getQueryParameter("aff_sub1")
+        val deepLink2 = uri.getQueryParameter("aff_sub2")
+        val deepLink3 = uri.getQueryParameter("aff_sub3")
+        val deepLink4 = uri.getQueryParameter("aff_sub4")
+        val deepLink5 = uri.getQueryParameter("aff_sub5")
+        val deepLinkList = listOf(deepLink1, deepLink2, deepLink3, deepLink4, deepLink5)
+        this.deepLinkList.addAll(deepLinkList)
+
+    }
+    private fun addDeeplink(url:String):String{
+        deepLinkList.clear()
+        getUrlParameters(url)
+        val updatedUrl = Uri.parse(url)
+            .buildUpon()
+            .clearQuery()
+            .appendQueryParameter("aff_sub1", deepLinkList.get(0))
+            .appendQueryParameter("aff_sub2", checkDeepLinkNull(deepLinkList.get(1)!!, newDeepLinkList.get(0)))
+            .appendQueryParameter("aff_sub3", checkDeepLinkNull(deepLinkList.get(2)!!, newDeepLinkList.get(1)))
+            .appendQueryParameter("aff_sub4", deepLinkList.get(3))
+            .appendQueryParameter("aff_sub5", deepLinkList.get(4))
+            .build()
+        Log.d("urlStartNew", updatedUrl.toString())
+        return updatedUrl.toString()
+    }
+    private fun checkDeepLinkNull(deepLink:String, newDeepLink:String?):String{
+        if(newDeepLink!=null){
+            return newDeepLink
+        }else{
+            return deepLink
+        }
     }
 }

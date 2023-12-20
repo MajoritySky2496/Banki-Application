@@ -1,6 +1,8 @@
 package com.example.bankiapplication.ui
+
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,7 +15,7 @@ import com.example.bankiapplication.databinding.FragmentWebviewBinding
 import com.example.bankiapplication.presentation.WebViewViewModel
 import com.example.bankiapplication.ui.model.WebViewFragmentState
 import com.example.bankiapplication.util.BindingFragment
-import kotlinx.coroutines.CoroutineScope
+import com.google.android.gms.ads.identifier.AdvertisingIdClient
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
@@ -43,6 +45,9 @@ class WebViewFragment : BindingFragment<FragmentWebviewBinding>() {
         viewModel.checkPermission(requireActivity())
         viewModel.viewStateLiveData.observe(requireActivity()) { render(it) }
         viewModel.handleIntent(requireActivity().intent)
+        getAdId()
+
+
 
 
         viewModel.networkStatus(requireContext())
@@ -162,24 +167,36 @@ class WebViewFragment : BindingFragment<FragmentWebviewBinding>() {
             viewModel.loadUrl(webView)
         }
     }
-    private fun showVpnView(currentUrl:String){
+
+    private fun showVpnView(currentUrl: String) {
         sendReportEvent(currentUrl)
         binding.webView.visibility = View.VISIBLE
         binding.progressBar.visibility = View.INVISIBLE
         binding.toolbar.visibility = View.VISIBLE
         showToast(requireContext(), resources.getString(R.string.vpn))
     }
+
     private fun showToast(context: Context, message: String) {
         Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
     }
-    private fun sendReportEvent(currentUrl: String){
+
+    private fun sendReportEvent(currentUrl: String) {
         viewModel.sendReport(requireContext(), currentUrl)
     }
-    private fun showStartPageAnimation(){
-        this.lifecycleScope.launch{
+
+    private fun showStartPageAnimation() {
+        this.lifecycleScope.launch {
             delay(3000)
             Dispatchers.Main
-            binding.startAnimation.visibility =View.GONE
+            binding.startAnimation.visibility = View.GONE
         }
     }
+    private fun getAdId(){
+        GlobalScope.launch {
+            val adInfo = AdvertisingIdClient.getAdvertisingIdInfo(requireContext())
+            Log.d("text", adInfo.id ?: "unknown")
+
+        }
+    }
+
 }

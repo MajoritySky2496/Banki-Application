@@ -8,7 +8,6 @@ import android.net.Network
 import android.net.NetworkCapabilities
 import android.net.NetworkRequest
 import android.util.Log
-import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.lifecycle.LiveData
@@ -57,16 +56,6 @@ class WebViewViewModel(
 
             Log.d("myLog", "finish")
 
-        }
-
-        override fun shouldOverrideUrlLoading(
-            view: WebView?,
-            request: WebResourceRequest?
-        ): Boolean {
-            return super.shouldOverrideUrlLoading(view, request)
-        }
-        override fun shouldOverrideUrlLoading(view: WebView?, url: String?): Boolean {
-            return super.shouldOverrideUrlLoading(view, url)
         }
     }
 
