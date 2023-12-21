@@ -17,13 +17,17 @@ import com.example.bankiapplication.domain.Interactor
 import com.example.bankiapplication.ui.model.WebViewFragmentState
 import com.example.bankiapplication.util.CheckPermissions
 import com.example.bankiapplication.util.app.App
+import com.google.android.gms.ads.identifier.AdvertisingIdClient
 import com.google.android.gms.tasks.OnCompleteListener
 import com.google.firebase.messaging.FirebaseMessaging
 import com.yandex.metrica.YandexMetrica
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
 class WebViewViewModel(
     private val interactor: Interactor,
     private val checkPermissions: CheckPermissions,
+    private val context: Context
 
 
 ) : ViewModel() {
@@ -47,7 +51,7 @@ class WebViewViewModel(
         override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
             super.onPageStarted(view, url, favicon)
             showLoading()
-            showView(url!!)
+            showView(url!!, context)
             Log.d("myLog", "start")
         }
 
@@ -61,10 +65,7 @@ class WebViewViewModel(
 
     private var _viewStateLiveData = MutableLiveData<WebViewFragmentState>()
     val viewStateLiveData: LiveData<WebViewFragmentState> = _viewStateLiveData
-
-    init {
-        getToken()
-    }
+    
 
      fun showWebView(webView: WebView) {
          this.webView = webView
@@ -105,30 +106,46 @@ class WebViewViewModel(
         checkPermissions.checkNotificationPermission(activity)
     }
 
-    private fun getToken() {
-        FirebaseMessaging.getInstance().token.addOnCompleteListener(OnCompleteListener { task ->
-            if (!task.isSuccessful) {
-                return@OnCompleteListener
-            }
-            val token = task.result
-            Log.d("MyLog", token)
-        })
-    }
     private fun showLoading(){
         _viewStateLiveData.postValue(WebViewFragmentState.Loading)
     }
-    private fun showView(url: String){
-        when(interactor.checkVpn()){
-            true -> {if(urlList.size>=1) loadUrl(webView)
-                urlList.clear()
-                _viewStateLiveData.postValue(WebViewFragmentState.ShowViewVpn(url))
+    private fun showView(url: String, context: Context){
+        GlobalScope.launch {
+            try {
+                val adInfo = AdvertisingIdClient.getAdvertisingIdInfo(context)
+                val advertisingId = adInfo.id
+                val isLimitAdTrackingEnabled = adInfo.isLimitAdTrackingEnabled
+
+                // Используйте advertisingId и isLimitAdTrackingEnabled по вашему усмотрению
+
+                // Пример вывода в консоль:
+                Log.d("adv", advertisingId.toString())
+            } catch (e: Exception) {
+                e.printStackTrace()
+                // Обработка ошибок, таких как GooglePlayServicesNotAvailableException, GooglePlayServicesRepairableException, IOException, IllegalStateException
             }
-            false -> {url.let { urlList.add(it) }
-                Log.d("myLog", urlList.toString())
-                if(startUrl==null){
-                    startUrl = url
+            when (interactor.checkVpn()) {
+                true -> {
+                    if (urlList.size >= 1) loadUrl(webView)
+                    urlList.clear()
+                    _viewStateLiveData.postValue(WebViewFragmentState.ShowViewVpn(url))
                 }
-                _viewStateLiveData.postValue(WebViewFragmentState.ShowView(url, urlList, startUrl!!))}
+
+                false -> {
+                    url.let { urlList.add(it) }
+                    Log.d("myLog", urlList.toString())
+                    if (startUrl == null) {
+                        startUrl = url
+                    }
+                    _viewStateLiveData.postValue(
+                        WebViewFragmentState.ShowView(
+                            url,
+                            urlList,
+                            startUrl!!
+                        )
+                    )
+                }
+            }
         }
     }
 

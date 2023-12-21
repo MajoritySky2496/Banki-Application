@@ -31,12 +31,8 @@ class WebViewImpl(private val context: Context, private val deepLinkStorage: Dee
     private var advId:String? = null
 
 
-
-
-
     @SuppressLint("SetJavaScriptEnabled")
     override fun startWebView(webView: WebView, webViewClient: WebViewClient) {
-        getAdvertisingId(context)
         webView.settings.javaScriptEnabled = true
         webView.settings.domStorageEnabled = true
         webView.settings.allowContentAccess = true
@@ -129,8 +125,6 @@ class WebViewImpl(private val context: Context, private val deepLinkStorage: Dee
         }
     }
     private fun getNewUrlParameters(appLinkData:Uri?){
-
-
         Log.d("appLinksData", "$appLinkData")
         val deeplink = appLinkData?.getQueryParameter("aff_sub2")
         Log.d("appLinksData", "$deeplink")
@@ -190,18 +184,18 @@ class WebViewImpl(private val context: Context, private val deepLinkStorage: Dee
        val deepLinksFromStorage =  deepLinkStorage.doRequest()
         return deepLinksFromStorage.toList()
     }
-    fun getAdvertisingId(context: Context) {
-        GlobalScope.launch {
-
-            try {
-                val adInfo = AdvertisingIdClient.getAdvertisingIdInfo(context)
-                val advertisingId = adInfo.id
-                advId = advertisingId
-                Log.d("avdId", "$advId")
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-        }
-    }
+//    fun getAdvertisingId(context: Context) {
+//        GlobalScope.launch {
+//
+//            try {
+//                val adInfo = AdvertisingIdClient.getAdvertisingIdInfo(context)
+//                val advertisingId = adInfo.id
+//                advId = advertisingId
+//                Log.d("avdId", "$advId")
+//            } catch (e: Exception) {
+//                e.printStackTrace()
+//            }
+//        }
+//    }
 
 }

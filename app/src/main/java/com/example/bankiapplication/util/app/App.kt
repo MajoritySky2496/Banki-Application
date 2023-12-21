@@ -6,6 +6,7 @@ import com.example.bankiapplication.di.interactorModule
 import com.example.bankiapplication.di.permissionModule
 import com.example.bankiapplication.di.repositoryModule
 import com.example.bankiapplication.di.viewModelModule
+import com.yandex.appmetrica.push.firebase.FirebasePushServiceControllerProvider
 import com.yandex.metrica.YandexMetrica
 import com.yandex.metrica.YandexMetricaConfig
 import com.yandex.metrica.push.YandexMetricaPush
@@ -20,7 +21,7 @@ class App:Application() {
         val config = YandexMetricaConfig.newConfigBuilder(APP_METRICA_KEY).build()
         YandexMetrica.activate(applicationContext, config)
         YandexMetrica.enableActivityAutoTracking(this)
-        YandexMetricaPush.init(applicationContext)
+        YandexMetricaPush.init(applicationContext, FirebasePushServiceControllerProvider(this))
 
         startKoin {
             androidContext(this@App)

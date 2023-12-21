@@ -23,6 +23,10 @@
         android:theme="@style/Theme.BankiApplication"
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
+        <meta-data android:name="ymp_firebase_app_id" android:value="1:559250488990:android:576c0613d033d714ca058f"/>
+        <meta-data android:name="ymp_gcm_sender_id" android:value="number:559250488990"/>
+        <meta-data android:name="ymp_firebase_api_key" android:value="AIzaSyBB7qYu_b0okfgsMLhRYVB74UopbGvaT8k"/>
+        <meta-data android:name="ymp_firebase_project_id" android:value="bankiapp-396ed"/>
         <meta-data
             android:name="com.facebook.sdk.ApplicationId"
             android:value="@string/facebook_app_id" />
@@ -49,13 +53,7 @@
                 <data android:host="com.example.bankiapplication" />
             </intent-filter>
         </activity>
-        <service
-            android:name=".util.notification.PushService"
-            android:exported="false">
-            <intent-filter>
-                <action android:name="com.google.firebase.MESSAGING_EVENT" />
-            </intent-filter>
-        </service>
+
 
 
     </application>
