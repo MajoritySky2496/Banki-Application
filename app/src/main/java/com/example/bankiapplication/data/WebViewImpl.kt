@@ -18,6 +18,7 @@ import com.example.bankiapplication.data.api.WebViewApi
 import com.example.bankiapplication.data.localStorage.DeepLinkStorage
 import com.example.bankiapplication.util.webview.MyWebChromeClient
 import com.google.android.gms.ads.identifier.AdvertisingIdClient
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
@@ -49,7 +50,6 @@ class WebViewImpl(private val context: Context, private val deepLinkStorage: Dee
             "Mozilla/5.0 (Linux; Android 13; SAMSUNG SM-S911B) AppleWebKit/537.36 (KHTML, like Gecko) SamsungBrowser/23.0 Chrome/115.0.0.0 Mobile Safari/537.36"
 
     }
-
 
     override fun checkVpn(): Boolean {
 
@@ -112,9 +112,24 @@ class WebViewImpl(private val context: Context, private val deepLinkStorage: Dee
     }
 
     override fun loadUrl(webView: WebView) {
-        Log.d("load", getStartUrl() )
-        webView.loadUrl(getStartUrl())
+        GlobalScope.launch {
+            try {
+                val adInfo = AdvertisingIdClient.getAdvertisingIdInfo(context)
+                val advertisingId = adInfo.id
+                advId = advertisingId
+                Log.d("adv", advertisingId.toString())
+            } catch (e: Exception) {
+                e.printStackTrace()
 
+            }
+            launch(Dispatchers.Main) {
+                Log.d("load", getStartUrl() )
+                webView.loadUrl(getStartUrl())
+                Log.d("advId", advId.toString())
+
+            }
+
+        }
     }
 
 
@@ -184,18 +199,5 @@ class WebViewImpl(private val context: Context, private val deepLinkStorage: Dee
        val deepLinksFromStorage =  deepLinkStorage.doRequest()
         return deepLinksFromStorage.toList()
     }
-//    fun getAdvertisingId(context: Context) {
-//        GlobalScope.launch {
-//
-//            try {
-//                val adInfo = AdvertisingIdClient.getAdvertisingIdInfo(context)
-//                val advertisingId = adInfo.id
-//                advId = advertisingId
-//                Log.d("avdId", "$advId")
-//            } catch (e: Exception) {
-//                e.printStackTrace()
-//            }
-//        }
-//    }
 
 }

@@ -2,6 +2,7 @@ package com.example.bankiapplication.ui
 
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -39,12 +40,16 @@ class WebViewFragment : BindingFragment<FragmentWebviewBinding>() {
         super.onViewCreated(view, savedInstanceState)
         showStartPageAnimation()
         webView = binding.webView
+
         viewModel.checkPermission(requireActivity())
         viewModel.viewStateLiveData.observe(requireActivity()) { render(it) }
         viewModel.handleIntent(requireActivity().intent)
+        viewModel.getUniqueLink1()
+
 
         viewModel.networkStatus(requireContext())
         showWebView(webView)
+
         binding.arrowBack.setOnClickListener {
             webViewGoBack(webView)
         }
@@ -58,6 +63,10 @@ class WebViewFragment : BindingFragment<FragmentWebviewBinding>() {
             goToHomePage()
         }
 
+    }
+
+    override fun onResume() {
+        super.onResume()
     }
 
 
@@ -75,6 +84,7 @@ class WebViewFragment : BindingFragment<FragmentWebviewBinding>() {
             callback
         )
     }
+
 
     private fun render(state: WebViewFragmentState) {
         when (state) {
@@ -145,6 +155,7 @@ class WebViewFragment : BindingFragment<FragmentWebviewBinding>() {
     }
 
     private fun showYesConnection() {
+
         binding.errorInternet.visibility = View.GONE
         if (listUrl.size >= 1) {
             if (currentUrl != listUrl.get(0)) {
