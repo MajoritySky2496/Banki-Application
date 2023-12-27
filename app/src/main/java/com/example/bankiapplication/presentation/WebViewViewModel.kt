@@ -205,14 +205,19 @@ class WebViewViewModel(
 
     fun loadUniqueLink() {
         viewModelScope.launch {
-            delay(1000)
+            delay(500)
             when (interactor.checkVpn()) {
                 true -> interactor.loadUrl(webView)
                 else -> {
-                    uniqueLink?.let { webView.loadUrl(it) }
-                    Log.d("uniqueLink", uniqueLink.toString())
-                    uniqueLink = null
-                    cancel()
+                    if(uniqueLink.isNullOrEmpty()){
+                        cancel()
+                    }else{
+                        uniqueLink?.let { webView.loadUrl(it) }
+                        Log.d("uniqueLink2", uniqueLink.toString())
+                        uniqueLink = null
+                    }
+
+
                 }
 
             }

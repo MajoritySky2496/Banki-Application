@@ -21,8 +21,9 @@ class UniqueLinkStorageImpl(private val sharedPref: SharedPreferences):UniqueLin
         sharedPref.edit().putString(UNIQUE_LINK_KEY, json).apply()
     }
 
+
     @SuppressLint("CommitPrefEdits")
     override fun clear() {
-        sharedPref.edit().clear()
+        sharedPref.edit().clear().apply()
     }
 }

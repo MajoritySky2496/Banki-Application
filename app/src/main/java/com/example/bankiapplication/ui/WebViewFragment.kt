@@ -44,9 +44,7 @@ class WebViewFragment : BindingFragment<FragmentWebviewBinding>() {
         viewModel.checkPermission(requireActivity())
         viewModel.viewStateLiveData.observe(requireActivity()) { render(it) }
         viewModel.handleIntent(requireActivity().intent)
-
-
-
+        viewModel.getUniqueLink1()
         viewModel.networkStatus(requireContext())
         showWebView(webView)
         viewModel.loadUrl(webView)
@@ -127,6 +125,7 @@ class WebViewFragment : BindingFragment<FragmentWebviewBinding>() {
     private fun showLoading() {
         binding.progressBar.visibility = View.VISIBLE
         binding.toolbar.visibility = View.GONE
+        binding.webView.visibility = View.INVISIBLE
     }
 
     private fun showView(currentUrl: String, urlList: MutableList<String>, startUrl: String) {
@@ -139,7 +138,7 @@ class WebViewFragment : BindingFragment<FragmentWebviewBinding>() {
             binding.webView.visibility = View.VISIBLE
             binding.arrowForward.visibility = View.VISIBLE
             binding.arrowBack.visibility = View.VISIBLE
-
+            binding.progressBar.visibility = View.GONE
             binding.toolbar.visibility = View.VISIBLE
 
         } else {
