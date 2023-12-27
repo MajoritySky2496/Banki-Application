@@ -92,7 +92,7 @@ class WebViewFragment : BindingFragment<FragmentWebviewBinding>() {
         when (state) {
             is WebViewFragmentState.Finish -> finish()
             is WebViewFragmentState.Loading -> showLoading()
-            is WebViewFragmentState.ShowView -> showView(state.url, state.urlList, state.startUrl)
+            is WebViewFragmentState.ShowView -> showView(state.url, state.startUrl)
             is WebViewFragmentState.NoConnection -> showNoConnection()
             is WebViewFragmentState.InternetAvailable -> showYesConnection()
             is WebViewFragmentState.ShowViewVpn -> showVpnView(state.url, state.startUrl)
@@ -128,11 +128,10 @@ class WebViewFragment : BindingFragment<FragmentWebviewBinding>() {
         binding.webView.visibility = View.INVISIBLE
     }
 
-    private fun showView(currentUrl: String, urlList: MutableList<String>, startUrl: String) {
+    private fun showView(currentUrl: String,  startUrl: String) {
         sendReportEvent(currentUrl)
         this.startUrl = startUrl
         Log.d("startUrl", startUrl)
-        listUrl.addAll(urlList)
         this.currentUrl = currentUrl
         if (currentUrl != startUrl) {
             binding.webView.visibility = View.VISIBLE
@@ -144,7 +143,9 @@ class WebViewFragment : BindingFragment<FragmentWebviewBinding>() {
         } else {
             binding.webView.visibility = View.VISIBLE
             binding.progressBar.visibility = View.INVISIBLE
-            binding.toolbar.visibility = View.GONE
+            binding.toolbar.visibility = View.VISIBLE
+            binding.arrowForward.visibility = View.GONE
+            binding.arrowBack.visibility = View.GONE
         }
     }
 
@@ -178,22 +179,22 @@ class WebViewFragment : BindingFragment<FragmentWebviewBinding>() {
     }
 
     private fun showVpnView(currentUrl: String, urlStart:String?) {
-        sendReportEvent(currentUrl)
-        if(currentUrl!=urlStart) {
-            binding.webView.visibility = View.VISIBLE
-            binding.arrowBack.visibility = View.VISIBLE
-            binding.arrowForward.visibility = View.VISIBLE
-            binding.progressBar.visibility = View.INVISIBLE
-            binding.toolbar.visibility = View.VISIBLE
-            showToast(requireContext(), resources.getString(R.string.vpn))
-        }else{
-            binding.webView.visibility = View.VISIBLE
-            binding.arrowBack.visibility = View.INVISIBLE
-            binding.arrowForward.visibility = View.INVISIBLE
-            binding.progressBar.visibility = View.INVISIBLE
-            binding.toolbar.visibility = View.VISIBLE
-            showToast(requireContext(), resources.getString(R.string.vpn))
-        }
+//        sendReportEvent(currentUrl)
+//        if(currentUrl!=urlStart) {
+//            binding.webView.visibility = View.VISIBLE
+//            binding.arrowBack.visibility = View.VISIBLE
+//            binding.arrowForward.visibility = View.VISIBLE
+//            binding.progressBar.visibility = View.INVISIBLE
+//            binding.toolbar.visibility = View.VISIBLE
+//            showToast(requireContext(), resources.getString(R.string.vpn))
+//        }else{
+//            binding.webView.visibility = View.VISIBLE
+//            binding.arrowBack.visibility = View.INVISIBLE
+//            binding.arrowForward.visibility = View.INVISIBLE
+//            binding.progressBar.visibility = View.INVISIBLE
+//            binding.toolbar.visibility = View.VISIBLE
+//            showToast(requireContext(), resources.getString(R.string.vpn))
+//        }
     }
 
     private fun showToast(context: Context, message: String) {

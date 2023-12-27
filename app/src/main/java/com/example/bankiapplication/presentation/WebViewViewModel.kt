@@ -33,10 +33,10 @@ class WebViewViewModel(
     private val uniqueLinkStorage: UniqueLinkStorage
 ) : ViewModel() {
     lateinit var webView: WebView
-    private var startUrlVpn: String? = null
     private var uniqueLink: String? = null
     private var urlList = mutableListOf<String>()
     private var startUrl: String? = null
+    private var startUrlVpn: String? = null
     private val networkStatusCallback = object : ConnectivityManager.NetworkCallback() {
         override fun onAvailable(network: Network) {
             super.onAvailable(network)
@@ -54,7 +54,7 @@ class WebViewViewModel(
         override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
             super.onPageStarted(view, url, favicon)
             showLoading()
-            showView(url!!)
+            showView(url!!, getStarUrl(url!!) )
             Log.d("myLog", "start")
         }
 
@@ -64,10 +64,7 @@ class WebViewViewModel(
                 loadUniqueLink()
 
             }
-
-
             Log.d("myLog", "finish")
-
         }
     }
 
@@ -120,11 +117,7 @@ class WebViewViewModel(
     }
 
     fun webViewReload(webView: WebView) {
-        if (urlList.size >= 1) {
-            webView.reload()
-        } else {
-            interactor.loadUrl(webView)
-        }
+        webView.reload()
     }
 
     fun checkPermission(activity: Activity) {
@@ -135,34 +128,13 @@ class WebViewViewModel(
         _viewStateLiveData.postValue(WebViewFragmentState.Loading)
     }
 
-    private fun showView(url: String) {
-        when (interactor.checkVpn()) {
-            true -> {
-                if (urlList.size >= 1)
-                    interactor.loadUrl(webView)
-                if (startUrlVpn == null) {
-                    startUrlVpn = url
-                }
-                urlList.clear()
-                _viewStateLiveData.postValue(WebViewFragmentState.ShowViewVpn(url, startUrlVpn))
-
-            }
-
-            false -> {
-                url.let { urlList.add(it) }
-                Log.d("myLog", urlList.toString())
-                if (startUrl == null) {
-                    startUrl = url
-                }
-                _viewStateLiveData.postValue(
-                    WebViewFragmentState.ShowView(
-                        url,
-                        urlList,
-                        startUrl!!
-                    )
-                )
-            }
-        }
+    private fun showView(url: String, startUrl:String) {
+        _viewStateLiveData.postValue(
+            WebViewFragmentState.ShowView(
+                url,
+                startUrl
+            )
+        )
     }
 
     fun goToHomePage(webView: WebView) {
@@ -202,16 +174,15 @@ class WebViewViewModel(
         Log.d("uniqueLink", "uniqueLink :" + uniqueLink.toString())
 
     }
-
     fun loadUniqueLink() {
         viewModelScope.launch {
             delay(500)
             when (interactor.checkVpn()) {
                 true -> interactor.loadUrl(webView)
                 else -> {
-                    if(uniqueLink.isNullOrEmpty()){
+                    if (uniqueLink.isNullOrEmpty()) {
                         cancel()
-                    }else{
+                    } else {
                         uniqueLink?.let { webView.loadUrl(it) }
                         Log.d("uniqueLink2", uniqueLink.toString())
                         uniqueLink = null
@@ -221,6 +192,22 @@ class WebViewViewModel(
                 }
 
             }
+        }
+
+    }
+    fun getStarUrl(url:String):String{
+         when(interactor.checkVpn()){
+            true ->{if(startUrlVpn==null){
+                startUrlVpn = url
+
+
+            }
+                return startUrlVpn!!}
+            else-> {if(startUrl==null){
+                startUrl= url
+
+            }
+                return startUrl!!}
         }
 
     }
