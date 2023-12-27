@@ -15,9 +15,7 @@ import com.example.bankiapplication.databinding.FragmentWebviewBinding
 import com.example.bankiapplication.presentation.WebViewViewModel
 import com.example.bankiapplication.ui.model.WebViewFragmentState
 import com.example.bankiapplication.util.BindingFragment
-import com.google.android.gms.ads.identifier.AdvertisingIdClient
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -42,16 +40,16 @@ class WebViewFragment : BindingFragment<FragmentWebviewBinding>() {
         super.onViewCreated(view, savedInstanceState)
         showStartPageAnimation()
         webView = binding.webView
+
         viewModel.checkPermission(requireActivity())
         viewModel.viewStateLiveData.observe(requireActivity()) { render(it) }
         viewModel.handleIntent(requireActivity().intent)
-        getAdId()
-
-
-
-
+        viewModel.getUniqueLink1()
         viewModel.networkStatus(requireContext())
         showWebView(webView)
+        viewModel.loadUrl(webView)
+
+
         binding.arrowBack.setOnClickListener {
             webViewGoBack(webView)
         }
@@ -65,6 +63,12 @@ class WebViewFragment : BindingFragment<FragmentWebviewBinding>() {
             goToHomePage()
         }
 
+    }
+
+    override fun onResume() {
+        super.onResume()
+        viewModel.getUniqueLink1()
+        viewModel.loadUniqueLink()
     }
 
 
@@ -83,6 +87,7 @@ class WebViewFragment : BindingFragment<FragmentWebviewBinding>() {
         )
     }
 
+
     private fun render(state: WebViewFragmentState) {
         when (state) {
             is WebViewFragmentState.Finish -> finish()
@@ -90,7 +95,7 @@ class WebViewFragment : BindingFragment<FragmentWebviewBinding>() {
             is WebViewFragmentState.ShowView -> showView(state.url, state.urlList, state.startUrl)
             is WebViewFragmentState.NoConnection -> showNoConnection()
             is WebViewFragmentState.InternetAvailable -> showYesConnection()
-            is WebViewFragmentState.ShowViewVpn -> showVpnView(state.url)
+            is WebViewFragmentState.ShowViewVpn -> showVpnView(state.url, state.startUrl)
         }
     }
 
@@ -120,23 +125,26 @@ class WebViewFragment : BindingFragment<FragmentWebviewBinding>() {
     private fun showLoading() {
         binding.progressBar.visibility = View.VISIBLE
         binding.toolbar.visibility = View.GONE
+        binding.webView.visibility = View.INVISIBLE
     }
 
     private fun showView(currentUrl: String, urlList: MutableList<String>, startUrl: String) {
         sendReportEvent(currentUrl)
         this.startUrl = startUrl
+        Log.d("startUrl", startUrl)
         listUrl.addAll(urlList)
         this.currentUrl = currentUrl
         if (currentUrl != startUrl) {
             binding.webView.visibility = View.VISIBLE
-            binding.progressBar.visibility = View.INVISIBLE
+            binding.arrowForward.visibility = View.VISIBLE
+            binding.arrowBack.visibility = View.VISIBLE
+            binding.progressBar.visibility = View.GONE
             binding.toolbar.visibility = View.VISIBLE
 
         } else {
             binding.webView.visibility = View.VISIBLE
             binding.progressBar.visibility = View.INVISIBLE
             binding.toolbar.visibility = View.GONE
-
         }
     }
 
@@ -152,6 +160,7 @@ class WebViewFragment : BindingFragment<FragmentWebviewBinding>() {
     }
 
     private fun showYesConnection() {
+
         binding.errorInternet.visibility = View.GONE
         if (listUrl.size >= 1) {
             if (currentUrl != listUrl.get(0)) {
@@ -161,19 +170,30 @@ class WebViewFragment : BindingFragment<FragmentWebviewBinding>() {
             } else {
                 binding.webView.visibility = View.VISIBLE
                 binding.toolbar.visibility = View.GONE
-
             }
         } else {
-            viewModel.loadUrl(webView)
+            webView.reload()
+
         }
     }
 
-    private fun showVpnView(currentUrl: String) {
+    private fun showVpnView(currentUrl: String, urlStart:String?) {
         sendReportEvent(currentUrl)
-        binding.webView.visibility = View.VISIBLE
-        binding.progressBar.visibility = View.INVISIBLE
-        binding.toolbar.visibility = View.VISIBLE
-        showToast(requireContext(), resources.getString(R.string.vpn))
+        if(currentUrl!=urlStart) {
+            binding.webView.visibility = View.VISIBLE
+            binding.arrowBack.visibility = View.VISIBLE
+            binding.arrowForward.visibility = View.VISIBLE
+            binding.progressBar.visibility = View.INVISIBLE
+            binding.toolbar.visibility = View.VISIBLE
+            showToast(requireContext(), resources.getString(R.string.vpn))
+        }else{
+            binding.webView.visibility = View.VISIBLE
+            binding.arrowBack.visibility = View.INVISIBLE
+            binding.arrowForward.visibility = View.INVISIBLE
+            binding.progressBar.visibility = View.INVISIBLE
+            binding.toolbar.visibility = View.VISIBLE
+            showToast(requireContext(), resources.getString(R.string.vpn))
+        }
     }
 
     private fun showToast(context: Context, message: String) {
@@ -191,12 +211,6 @@ class WebViewFragment : BindingFragment<FragmentWebviewBinding>() {
             binding.startAnimation.visibility = View.GONE
         }
     }
-    private fun getAdId(){
-        GlobalScope.launch {
-            val adInfo = AdvertisingIdClient.getAdvertisingIdInfo(requireContext())
-            Log.d("text", adInfo.id ?: "unknown")
 
-        }
-    }
 
 }

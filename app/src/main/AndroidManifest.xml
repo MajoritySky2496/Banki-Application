@@ -10,6 +10,8 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
 
     <application
         android:name=".util.app.App"
@@ -23,6 +25,10 @@
         android:theme="@style/Theme.BankiApplication"
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
+        <meta-data android:name="ymp_firebase_app_id" android:value="1:559250488990:android:576c0613d033d714ca058f"/>
+        <meta-data android:name="ymp_gcm_sender_id" android:value="number:559250488990"/>
+        <meta-data android:name="ymp_firebase_api_key" android:value="AIzaSyBB7qYu_b0okfgsMLhRYVB74UopbGvaT8k"/>
+        <meta-data android:name="ymp_firebase_project_id" android:value="bankiapp-396ed"/>
         <meta-data
             android:name="com.facebook.sdk.ApplicationId"
             android:value="@string/facebook_app_id" />
@@ -49,16 +55,13 @@
                 <data android:host="com.example.bankiapplication" />
             </intent-filter>
         </activity>
-        <service
-            android:name=".util.notification.PushService"
+        <service android:name=".MyFirebaseMessagingService"
+            android:enabled="true"
             android:exported="false">
-            <intent-filter>
-                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            <intent-filter android:priority="100">
+                <action android:name="com.google.firebase.MESSAGING_EVENT"/>
             </intent-filter>
         </service>
-
-
+        <service android:name="com.yandex.metrica.push.firebase.MetricaMessagingService" tools:node="remove"/>
     </application>
-
-
 </manifest>
