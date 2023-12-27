@@ -14,6 +14,7 @@ import android.webkit.WebViewClient
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.bankiapplication.data.localStorage.UniqueLinkStorage
 import com.example.bankiapplication.domain.Interactor
 import com.example.bankiapplication.ui.model.WebViewFragmentState
@@ -22,15 +23,18 @@ import com.example.bankiapplication.util.app.App
 import com.google.android.gms.tasks.OnCompleteListener
 import com.google.firebase.messaging.FirebaseMessaging
 import com.yandex.metrica.YandexMetrica
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 class WebViewViewModel(
     private val interactor: Interactor,
     private val checkPermissions: CheckPermissions,
-    private val context: Context,
     private val uniqueLinkStorage: UniqueLinkStorage
 ) : ViewModel() {
     lateinit var webView: WebView
-    private var uniqueLink:String? = null
+    private var startUrlVpn: String? = null
+    private var uniqueLink: String? = null
     private var urlList = mutableListOf<String>()
     private var startUrl: String? = null
     private val networkStatusCallback = object : ConnectivityManager.NetworkCallback() {
@@ -50,12 +54,16 @@ class WebViewViewModel(
         override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
             super.onPageStarted(view, url, favicon)
             showLoading()
-            showView(url!!, context)
+            showView(url!!)
             Log.d("myLog", "start")
         }
 
         override fun onPageFinished(view: WebView?, url: String?) {
             super.onPageFinished(view, url)
+            if (uniqueLink != null) {
+                loadUniqueLink()
+
+            }
 
 
             Log.d("myLog", "finish")
@@ -127,12 +135,17 @@ class WebViewViewModel(
         _viewStateLiveData.postValue(WebViewFragmentState.Loading)
     }
 
-    private fun showView(url: String, context: Context) {
+    private fun showView(url: String) {
         when (interactor.checkVpn()) {
             true -> {
-                if (urlList.size >= 1) loadUrl(webView)
+                if (urlList.size >= 1)
+                    interactor.loadUrl(webView)
+                if (startUrlVpn == null) {
+                    startUrlVpn = url
+                }
                 urlList.clear()
-                _viewStateLiveData.postValue(WebViewFragmentState.ShowViewVpn(url))
+                _viewStateLiveData.postValue(WebViewFragmentState.ShowViewVpn(url, startUrlVpn))
+
             }
 
             false -> {
@@ -177,27 +190,34 @@ class WebViewViewModel(
     fun sendReport(context: Context, currentUrl: String) {
         YandexMetrica.getReporter(context, App.APP_METRICA_KEY).reportEvent(currentUrl)
     }
-    fun getUniqueLink1(){
-        if(uniqueLinkStorage.doRequest().isNotEmpty()){
+
+    fun getUniqueLink1() {
+        if (uniqueLinkStorage.doRequest().isNotEmpty()) {
             uniqueLink = uniqueLinkStorage.doRequest().get(0)
-            Log.d("uniqueLink", "myFirebaseMessagingService2:" + uniqueLink )
+            Log.d("uniqueLink", "myFirebaseMessagingService2:" + uniqueLink)
             uniqueLinkStorage.clear()
         }
-        Log.d("uniqueLink", "myFirebaseMessagingService:" + uniqueLink )
+        Log.d("uniqueLink", "myFirebaseMessagingService:" + uniqueLink)
 
         Log.d("uniqueLink", "uniqueLink :" + uniqueLink.toString())
 
     }
-    fun loadUniqueLink(){
-        when(interactor.checkVpn()){
-            true -> return
-            else -> {uniqueLink?.let { webView.loadUrl(it) }
-                Log.d("uniqueLink", uniqueLink.toString())
-                uniqueLink = null
-            }
 
+    fun loadUniqueLink() {
+        viewModelScope.launch {
+            delay(1000)
+            when (interactor.checkVpn()) {
+                true -> interactor.loadUrl(webView)
+                else -> {
+                    uniqueLink?.let { webView.loadUrl(it) }
+                    Log.d("uniqueLink", uniqueLink.toString())
+                    uniqueLink = null
+                    cancel()
+                }
+
+            }
         }
-        uniqueLink = null
+
     }
 
 }

@@ -6,6 +6,5 @@ sealed interface WebViewFragmentState{
     data class ShowView( val url:String, val urlList:MutableList<String>, val startUrl:String):WebViewFragmentState
     object NoConnection:WebViewFragmentState
     object InternetAvailable:WebViewFragmentState
-    data class ShowViewVpn(val url:String):WebViewFragmentState
-
+    data class ShowViewVpn(val url:String, val startUrl:String?):WebViewFragmentState
 }
