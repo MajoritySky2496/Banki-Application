@@ -7,10 +7,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.webkit.WebView
-import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.lifecycle.lifecycleScope
-import com.example.bankiapplication.R
 import com.example.bankiapplication.databinding.FragmentWebviewBinding
 import com.example.bankiapplication.presentation.WebViewViewModel
 import com.example.bankiapplication.ui.model.WebViewFragmentState
@@ -26,7 +24,7 @@ class WebViewFragment : BindingFragment<FragmentWebviewBinding>() {
     lateinit var webView: WebView
     var startUrl: String? = null
     private var currentUrl: String? = null
-    private val listUrl = mutableListOf<String>()
+
 
 
     override fun createBinding(
@@ -41,6 +39,7 @@ class WebViewFragment : BindingFragment<FragmentWebviewBinding>() {
         showStartPageAnimation()
         webView = binding.webView
 
+
         viewModel.checkPermission(requireActivity())
         viewModel.viewStateLiveData.observe(requireActivity()) { render(it) }
         viewModel.handleIntent(requireActivity().intent)
@@ -48,6 +47,7 @@ class WebViewFragment : BindingFragment<FragmentWebviewBinding>() {
         viewModel.networkStatus(requireContext())
         showWebView(webView)
         viewModel.loadUrl(webView)
+
 
 
         binding.arrowBack.setOnClickListener {
@@ -95,7 +95,7 @@ class WebViewFragment : BindingFragment<FragmentWebviewBinding>() {
             is WebViewFragmentState.ShowView -> showView(state.url, state.startUrl)
             is WebViewFragmentState.NoConnection -> showNoConnection()
             is WebViewFragmentState.InternetAvailable -> showYesConnection()
-            is WebViewFragmentState.ShowViewVpn -> showVpnView(state.url, state.startUrl)
+
         }
     }
 
@@ -139,6 +139,7 @@ class WebViewFragment : BindingFragment<FragmentWebviewBinding>() {
             binding.arrowBack.visibility = View.VISIBLE
             binding.progressBar.visibility = View.GONE
             binding.toolbar.visibility = View.VISIBLE
+            binding.errorInternet.visibility = View.INVISIBLE
 
         } else {
             binding.webView.visibility = View.VISIBLE
@@ -146,6 +147,7 @@ class WebViewFragment : BindingFragment<FragmentWebviewBinding>() {
             binding.toolbar.visibility = View.VISIBLE
             binding.arrowForward.visibility = View.GONE
             binding.arrowBack.visibility = View.GONE
+            binding.errorInternet.visibility = View.INVISIBLE
         }
     }
 
@@ -161,44 +163,7 @@ class WebViewFragment : BindingFragment<FragmentWebviewBinding>() {
     }
 
     private fun showYesConnection() {
-
-        binding.errorInternet.visibility = View.GONE
-        if (listUrl.size >= 1) {
-            if (currentUrl != listUrl.get(0)) {
-                binding.webView.visibility = View.VISIBLE
-                binding.progressBar.visibility = View.INVISIBLE
-                binding.toolbar.visibility = View.VISIBLE
-            } else {
-                binding.webView.visibility = View.VISIBLE
-                binding.toolbar.visibility = View.GONE
-            }
-        } else {
-            webView.reload()
-
-        }
-    }
-
-    private fun showVpnView(currentUrl: String, urlStart:String?) {
-//        sendReportEvent(currentUrl)
-//        if(currentUrl!=urlStart) {
-//            binding.webView.visibility = View.VISIBLE
-//            binding.arrowBack.visibility = View.VISIBLE
-//            binding.arrowForward.visibility = View.VISIBLE
-//            binding.progressBar.visibility = View.INVISIBLE
-//            binding.toolbar.visibility = View.VISIBLE
-//            showToast(requireContext(), resources.getString(R.string.vpn))
-//        }else{
-//            binding.webView.visibility = View.VISIBLE
-//            binding.arrowBack.visibility = View.INVISIBLE
-//            binding.arrowForward.visibility = View.INVISIBLE
-//            binding.progressBar.visibility = View.INVISIBLE
-//            binding.toolbar.visibility = View.VISIBLE
-//            showToast(requireContext(), resources.getString(R.string.vpn))
-//        }
-    }
-
-    private fun showToast(context: Context, message: String) {
-        Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+        webView.reload()
     }
 
     private fun sendReportEvent(currentUrl: String) {

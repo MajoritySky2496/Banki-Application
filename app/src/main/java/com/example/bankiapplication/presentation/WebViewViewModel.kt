@@ -8,6 +8,7 @@ import android.net.ConnectivityManager
 import android.net.Network
 import android.net.NetworkCapabilities
 import android.net.NetworkRequest
+import android.os.Build
 import android.util.Log
 import android.webkit.WebView
 import android.webkit.WebViewClient
@@ -30,31 +31,42 @@ import kotlinx.coroutines.launch
 class WebViewViewModel(
     private val interactor: Interactor,
     private val checkPermissions: CheckPermissions,
-    private val uniqueLinkStorage: UniqueLinkStorage
+    private val uniqueLinkStorage: UniqueLinkStorage,
+    context: Context
 ) : ViewModel() {
     lateinit var webView: WebView
     private var uniqueLink: String? = null
     private var urlList = mutableListOf<String>()
     private var startUrl: String? = null
     private var startUrlVpn: String? = null
+    private var currentUrl:String? = null
+    private val connectivityManager =
+        context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+    var currentVpnStatus = true
+
+
     private val networkStatusCallback = object : ConnectivityManager.NetworkCallback() {
         override fun onAvailable(network: Network) {
             super.onAvailable(network)
             _viewStateLiveData.postValue(WebViewFragmentState.InternetAvailable)
             Log.d("checkInternet", "OK")
+            checkVpn()
         }
 
         override fun onLost(network: Network) {
             super.onLost(network)
             Log.d("checkInternet", "Error")
             _viewStateLiveData.postValue(WebViewFragmentState.NoConnection)
+
         }
     }
+    private val networkCallback = networkStatusCallback
     private val webViewClient = object : WebViewClient() {
         override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
             super.onPageStarted(view, url, favicon)
             showLoading()
             showView(url!!, getStarUrl(url!!) )
+            currentUrl = url!!
             Log.d("myLog", "start")
         }
 
@@ -70,6 +82,13 @@ class WebViewViewModel(
 
     init {
         getToken()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            connectivityManager.registerDefaultNetworkCallback(networkCallback)
+        }else{
+            val filter = android.content.IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION)
+//            context.registerReceiver(NetworkReceiver(), filter)
+        }
+
     }
 
     private var _viewStateLiveData = MutableLiveData<WebViewFragmentState>()
@@ -103,7 +122,7 @@ class WebViewViewModel(
     }
 
     fun finish(webView: WebView) {
-        if (webView.canGoBack()) {
+        if (currentUrl!=getStarUrl(currentUrl!!)) {
             webView.goBack()
         } else {
             _viewStateLiveData.postValue(WebViewFragmentState.Finish)
@@ -117,7 +136,8 @@ class WebViewViewModel(
     }
 
     fun webViewReload(webView: WebView) {
-        webView.reload()
+            webView.reload()
+
     }
 
     fun checkPermission(activity: Activity) {
@@ -178,7 +198,8 @@ class WebViewViewModel(
         viewModelScope.launch {
             delay(500)
             when (interactor.checkVpn()) {
-                true -> interactor.loadUrl(webView)
+                true -> {
+                    uniqueLink = null}
                 else -> {
                     if (uniqueLink.isNullOrEmpty()) {
                         cancel()
@@ -193,14 +214,11 @@ class WebViewViewModel(
 
             }
         }
-
     }
     fun getStarUrl(url:String):String{
          when(interactor.checkVpn()){
             true ->{if(startUrlVpn==null){
                 startUrlVpn = url
-
-
             }
                 return startUrlVpn!!}
             else-> {if(startUrl==null){
@@ -210,6 +228,17 @@ class WebViewViewModel(
                 return startUrl!!}
         }
 
+    }
+    private fun checkVpn() {
+        viewModelScope.launch {
+            val newVpnStatus = interactor.checkVpn()
+            if (currentVpnStatus != newVpnStatus) {
+                _viewStateLiveData.postValue(WebViewFragmentState.Loading)
+                delay(2000)
+                interactor.loadUrl(webView)
+                webView.clearHistory()}
+            currentVpnStatus = newVpnStatus
+        }
     }
 
 }
