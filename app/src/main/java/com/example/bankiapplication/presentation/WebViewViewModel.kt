@@ -1,8 +1,10 @@
 package com.example.bankiapplication.presentation
 
 import android.app.Activity
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.graphics.Bitmap
 import android.net.ConnectivityManager
 import android.net.Network
@@ -11,6 +13,8 @@ import android.net.NetworkRequest
 import android.util.Log
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import androidx.core.content.ContextCompat.RECEIVER_EXPORTED
+import androidx.core.content.ContextCompat.registerReceiver
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -30,13 +34,27 @@ import kotlinx.coroutines.launch
 class WebViewViewModel(
     private val interactor: Interactor,
     private val checkPermissions: CheckPermissions,
-    private val uniqueLinkStorage: UniqueLinkStorage
+    private val uniqueLinkStorage: UniqueLinkStorage,
+    context: Context
 ) : ViewModel() {
     lateinit var webView: WebView
-    private var startUrlVpn: String? = null
     private var uniqueLink: String? = null
     private var urlList = mutableListOf<String>()
     private var startUrl: String? = null
+    private var startUrlVpn: String? = null
+    private var currentUrl:String? = null
+    var currentVpnStatus = true
+
+    private val vpnStateReceiver = object :BroadcastReceiver(){
+        override fun onReceive(context: Context?, intent: Intent?) {
+            if (intent?.action == ConnectivityManager.CONNECTIVITY_ACTION) {
+                context?.let {
+                    checkVpn()
+                }
+            }
+        }
+
+    }
     private val networkStatusCallback = object : ConnectivityManager.NetworkCallback() {
         override fun onAvailable(network: Network) {
             super.onAvailable(network)
@@ -48,13 +66,14 @@ class WebViewViewModel(
             super.onLost(network)
             Log.d("checkInternet", "Error")
             _viewStateLiveData.postValue(WebViewFragmentState.NoConnection)
+
         }
     }
     private val webViewClient = object : WebViewClient() {
         override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
             super.onPageStarted(view, url, favicon)
-            showLoading()
-            showView(url!!)
+            showView(url!!, getStarUrl(url!!) )
+            currentUrl = url!!
             Log.d("myLog", "start")
         }
 
@@ -64,15 +83,15 @@ class WebViewViewModel(
                 loadUniqueLink()
 
             }
-
-
             Log.d("myLog", "finish")
-
         }
     }
 
     init {
         getToken()
+        val intentFilter = IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION)
+        registerReceiver(context, vpnStateReceiver, intentFilter, RECEIVER_EXPORTED)
+
     }
 
     private var _viewStateLiveData = MutableLiveData<WebViewFragmentState>()
@@ -106,7 +125,7 @@ class WebViewViewModel(
     }
 
     fun finish(webView: WebView) {
-        if (webView.canGoBack()) {
+        if (currentUrl!=getStarUrl(currentUrl!!)) {
             webView.goBack()
         } else {
             _viewStateLiveData.postValue(WebViewFragmentState.Finish)
@@ -120,11 +139,8 @@ class WebViewViewModel(
     }
 
     fun webViewReload(webView: WebView) {
-        if (urlList.size >= 1) {
             webView.reload()
-        } else {
-            interactor.loadUrl(webView)
-        }
+
     }
 
     fun checkPermission(activity: Activity) {
@@ -135,34 +151,13 @@ class WebViewViewModel(
         _viewStateLiveData.postValue(WebViewFragmentState.Loading)
     }
 
-    private fun showView(url: String) {
-        when (interactor.checkVpn()) {
-            true -> {
-                if (urlList.size >= 1)
-                    interactor.loadUrl(webView)
-                if (startUrlVpn == null) {
-                    startUrlVpn = url
-                }
-                urlList.clear()
-                _viewStateLiveData.postValue(WebViewFragmentState.ShowViewVpn(url, startUrlVpn))
-
-            }
-
-            false -> {
-                url.let { urlList.add(it) }
-                Log.d("myLog", urlList.toString())
-                if (startUrl == null) {
-                    startUrl = url
-                }
-                _viewStateLiveData.postValue(
-                    WebViewFragmentState.ShowView(
-                        url,
-                        urlList,
-                        startUrl!!
-                    )
-                )
-            }
-        }
+    private fun showView(url: String, startUrl:String) {
+        _viewStateLiveData.postValue(
+            WebViewFragmentState.ShowView(
+                url,
+                startUrl
+            )
+        )
     }
 
     fun goToHomePage(webView: WebView) {
@@ -191,7 +186,7 @@ class WebViewViewModel(
         YandexMetrica.getReporter(context, App.APP_METRICA_KEY).reportEvent(currentUrl)
     }
 
-    fun getUniqueLink1() {
+    fun getUniqueLink() {
         if (uniqueLinkStorage.doRequest().isNotEmpty()) {
             uniqueLink = uniqueLinkStorage.doRequest().get(0)
             Log.d("uniqueLink", "myFirebaseMessagingService2:" + uniqueLink)
@@ -202,16 +197,16 @@ class WebViewViewModel(
         Log.d("uniqueLink", "uniqueLink :" + uniqueLink.toString())
 
     }
-
     fun loadUniqueLink() {
         viewModelScope.launch {
             delay(500)
             when (interactor.checkVpn()) {
-                true -> interactor.loadUrl(webView)
+                true -> {
+                    uniqueLink = null}
                 else -> {
-                    if(uniqueLink.isNullOrEmpty()){
-                        cancel()
-                    }else{
+                    if (uniqueLink.isNullOrEmpty()) {
+
+                    } else {
                         uniqueLink?.let { webView.loadUrl(it) }
                         Log.d("uniqueLink2", uniqueLink.toString())
                         uniqueLink = null
@@ -222,7 +217,30 @@ class WebViewViewModel(
 
             }
         }
+    }
+    fun getStarUrl(url:String):String{
+         when(interactor.checkVpn()){
+            true ->{if(startUrlVpn==null){
+                startUrlVpn = url
+            }
+                return startUrlVpn!!}
+            else-> {if(startUrl==null){
+                startUrl= url
 
+            }
+                return startUrl!!}
+        }
+
+    }
+    private fun checkVpn() {
+        viewModelScope.launch {
+            val newVpnStatus = interactor.checkVpn()
+            if (currentVpnStatus != newVpnStatus) {
+                _viewStateLiveData.postValue(WebViewFragmentState.Loading)
+                interactor.loadUrl(webView)
+                webView.clearHistory()}
+            currentVpnStatus = newVpnStatus
+        }
     }
 
 }
