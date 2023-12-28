@@ -38,18 +38,12 @@ class WebViewFragment : BindingFragment<FragmentWebviewBinding>() {
         super.onViewCreated(view, savedInstanceState)
         showStartPageAnimation()
         webView = binding.webView
-
-
         viewModel.checkPermission(requireActivity())
         viewModel.viewStateLiveData.observe(requireActivity()) { render(it) }
         viewModel.handleIntent(requireActivity().intent)
-        viewModel.getUniqueLink1()
+        viewModel.getUniqueLink()
         viewModel.networkStatus(requireContext())
         showWebView(webView)
-        viewModel.loadUrl(webView)
-
-
-
         binding.arrowBack.setOnClickListener {
             webViewGoBack(webView)
         }
@@ -67,10 +61,10 @@ class WebViewFragment : BindingFragment<FragmentWebviewBinding>() {
 
     override fun onResume() {
         super.onResume()
-        viewModel.getUniqueLink1()
+        viewModel.getUniqueLink()
         viewModel.loadUniqueLink()
+        Log.d("loadUniqueLink", "load")
     }
-
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -86,7 +80,6 @@ class WebViewFragment : BindingFragment<FragmentWebviewBinding>() {
             callback
         )
     }
-
 
     private fun render(state: WebViewFragmentState) {
         when (state) {

@@ -1,17 +1,20 @@
 package com.example.bankiapplication.presentation
 
 import android.app.Activity
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.graphics.Bitmap
 import android.net.ConnectivityManager
 import android.net.Network
 import android.net.NetworkCapabilities
 import android.net.NetworkRequest
-import android.os.Build
 import android.util.Log
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import androidx.core.content.ContextCompat.RECEIVER_EXPORTED
+import androidx.core.content.ContextCompat.registerReceiver
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -40,17 +43,23 @@ class WebViewViewModel(
     private var startUrl: String? = null
     private var startUrlVpn: String? = null
     private var currentUrl:String? = null
-    private val connectivityManager =
-        context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
     var currentVpnStatus = true
 
+    private val vpnStateReceiver = object :BroadcastReceiver(){
+        override fun onReceive(context: Context?, intent: Intent?) {
+            if (intent?.action == ConnectivityManager.CONNECTIVITY_ACTION) {
+                context?.let {
+                    checkVpn()
+                }
+            }
+        }
 
+    }
     private val networkStatusCallback = object : ConnectivityManager.NetworkCallback() {
         override fun onAvailable(network: Network) {
             super.onAvailable(network)
             _viewStateLiveData.postValue(WebViewFragmentState.InternetAvailable)
             Log.d("checkInternet", "OK")
-            checkVpn()
         }
 
         override fun onLost(network: Network) {
@@ -60,11 +69,9 @@ class WebViewViewModel(
 
         }
     }
-    private val networkCallback = networkStatusCallback
     private val webViewClient = object : WebViewClient() {
         override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
             super.onPageStarted(view, url, favicon)
-            showLoading()
             showView(url!!, getStarUrl(url!!) )
             currentUrl = url!!
             Log.d("myLog", "start")
@@ -82,12 +89,8 @@ class WebViewViewModel(
 
     init {
         getToken()
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            connectivityManager.registerDefaultNetworkCallback(networkCallback)
-        }else{
-            val filter = android.content.IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION)
-//            context.registerReceiver(NetworkReceiver(), filter)
-        }
+        val intentFilter = IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION)
+        registerReceiver(context, vpnStateReceiver, intentFilter, RECEIVER_EXPORTED)
 
     }
 
@@ -183,7 +186,7 @@ class WebViewViewModel(
         YandexMetrica.getReporter(context, App.APP_METRICA_KEY).reportEvent(currentUrl)
     }
 
-    fun getUniqueLink1() {
+    fun getUniqueLink() {
         if (uniqueLinkStorage.doRequest().isNotEmpty()) {
             uniqueLink = uniqueLinkStorage.doRequest().get(0)
             Log.d("uniqueLink", "myFirebaseMessagingService2:" + uniqueLink)
@@ -202,7 +205,7 @@ class WebViewViewModel(
                     uniqueLink = null}
                 else -> {
                     if (uniqueLink.isNullOrEmpty()) {
-                        cancel()
+
                     } else {
                         uniqueLink?.let { webView.loadUrl(it) }
                         Log.d("uniqueLink2", uniqueLink.toString())
@@ -234,7 +237,6 @@ class WebViewViewModel(
             val newVpnStatus = interactor.checkVpn()
             if (currentVpnStatus != newVpnStatus) {
                 _viewStateLiveData.postValue(WebViewFragmentState.Loading)
-                delay(2000)
                 interactor.loadUrl(webView)
                 webView.clearHistory()}
             currentVpnStatus = newVpnStatus
