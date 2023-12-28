@@ -43,7 +43,7 @@ class WebViewViewModel(
     private var startUrl: String? = null
     private var startUrlVpn: String? = null
     private var currentUrl:String? = null
-    var currentVpnStatus = true
+    var currentVpnStatus = false
 
     private val vpnStateReceiver = object :BroadcastReceiver(){
         override fun onReceive(context: Context?, intent: Intent?) {
