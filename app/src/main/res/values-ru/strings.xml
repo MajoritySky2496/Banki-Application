@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Займы онлайн</string>
+    <string name="app_name">Достойный заём</string>
     <string name="no_internet">Нет соединения с интернетом!</string>
     <string name="vpn">VPN включен!</string>
 

@@ -5,6 +5,6 @@
     app:startDestination="@id/webViewFragment">
     <fragment
         android:id="@+id/webViewFragment"
-        android:name="com.example.bankiapplication.ui.WebViewFragment"
+        android:name="com.example.dostoinzaemapp.ui.WebViewFragment"
         android:label="WebViewFragment" />
 </navigation>

@@ -17,5 +17,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Banki Application"
+rootProject.name = "dostoin.zaem.app"
 include(":app")

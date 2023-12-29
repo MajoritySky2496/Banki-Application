@@ -1,21 +1,21 @@
 {
   "project_info": {
-    "project_number": "559250488990",
-    "project_id": "bankiapp-396ed",
-    "storage_bucket": "bankiapp-396ed.appspot.com"
+    "project_number": "1096028071956",
+    "project_id": "dostoin-zaem-app",
+    "storage_bucket": "dostoin-zaem-app.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:559250488990:android:576c0613d033d714ca058f",
+        "mobilesdk_app_id": "1:1096028071956:android:055950a078b50f3dcb9f01",
         "android_client_info": {
-          "package_name": "com.example.bankiapplication"
+          "package_name": "com.example.dostoin.zaem.app"
         }
       },
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyBB7qYu_b0okfgsMLhRYVB74UopbGvaT8k"
+          "current_key": "AIzaSyCIw2szl3S6laohlMpmWjwzz2G8dGgElbI"
         }
       ],
       "services": {

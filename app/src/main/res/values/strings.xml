@@ -1,6 +1,6 @@
 <resources>
-    <string name="app_name">Banki Application</string>
-    <string name="facebook_app_id" translatable="false">288376974194360</string><string name="facebook_client_token" translatable="false">a04e1a67c4efd71119c4faf7ef5bed5a</string>
+    <string name="app_name">A decent loan</string>
+    <string name="facebook_app_id" translatable="false">724825805858942</string><string name="facebook_client_token" translatable="false">e17925cd3e232c3cf4e84e6598d774e3</string>
     <string name="no_internet">No internet connection!</string>
     <string name="vpn">Vpn enabled</string>
 </resources>

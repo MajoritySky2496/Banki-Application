@@ -14,7 +14,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.example.bankiapplication"
+        applicationId = "com.example.dostoin.zaem.app"
         minSdk = 21
         targetSdk = 33
         versionCode = 1
