@@ -25,8 +25,8 @@ import kotlinx.coroutines.launch
 
 class WebViewImpl(private val context: Context, private val deepLinkStorage: DeepLinkStorage) : WebViewApi {
 
-    private var startUrl = "https://crapinka.ru/BtGLZhVK?aff_sub1=test.zaim.german&aff_sub2=%7Bdeep_adv%7D&aff_sub3=%7Bdeep_place%7D&aff_sub4=boy_showcase&aff_sub5=%7Bdevice_id%7D"
-    private var startUrlVpn = "https://crapinka.ru/BtGLZhVK?aff_sub1=test.zaim.german&aff_sub2={deep_adv}&aff_sub3={deep_place}&aff_sub4=vpn&aff_sub5={device_id}"
+    private var startUrl = "https://crapinka.ru/4rTHQ787?aff_sub1=dostoin.zaem.app&aff_sub2={deep_adv}&aff_sub3={deep_place}&aff_sub4=boy_showcase&aff_sub5={device_id}"
+    private var startUrlVpn = "https://crapinka.ru/4rTHQ787?aff_sub1=dostoin.zaem.app&aff_sub2={deep_adv}&aff_sub3={deep_place}&aff_sub4=vpn&aff_sub5={device_id}"
     private val deepLinkList = mutableListOf<String?>()
     private val newDeepLinkList = mutableListOf<String?>(null, null)
     private var advId:String? = null
