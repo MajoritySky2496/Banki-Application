@@ -44,6 +44,7 @@ class WebViewFragment : BindingFragment<FragmentWebviewBinding>() {
         viewModel.getUniqueLink()
         viewModel.networkStatus(requireContext())
         showWebView(webView)
+        viewModel.loadUrl(webView)
         binding.arrowBack.setOnClickListener {
             webViewGoBack(webView)
         }
