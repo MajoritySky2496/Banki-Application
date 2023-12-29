@@ -30,7 +30,7 @@ class RootActivity : AppCompatActivity() {
     private fun notificationChannel(){
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
 
-            val name = "Yandex"
+            val name = "app_metrica_push_channel"
             val descriptionText = "Push"
             val importance = NotificationManager.IMPORTANCE_DEFAULT
             val mChannel = NotificationChannel(CHANNEL_ID, name, importance)
